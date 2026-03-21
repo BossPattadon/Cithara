@@ -1,15 +1,15 @@
 # CRUD Demonstration
 
 ## 1. Create
-![alt text](image.png)
+![Create](CRUD_screenshots/image.png)
 
 ## 2. Read
-![alt text](image-1.png)
+![Read](CRUD_screenshots/image-1.png)
 
 ## 3. Update
-![alt text](image-5.png)
-![alt text](image-2.png)
+![Update](CRUD_screenshots/image-5.png)
+![Update](CRUD_screenshots/image-2.png)
 
 ## 4. Delete
-![alt text](image-3.png)
-![alt text](image-4.png)
+![Delete](CRUD_screenshots/image-3.png)
+![Delete](CRUD_screenshots/image-4.png)
