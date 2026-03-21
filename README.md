@@ -2,7 +2,9 @@
 A Django AI-generated song web application
 
 ## Domain Model
-![DomainModelDiagram](DomainModelDiagram.png)
+<p align="center">
+  <img src="DomainModelDiagram.png" width="500">
+</p>
 
 ## Setup Virtual Environment
 ### Create virtual environment
