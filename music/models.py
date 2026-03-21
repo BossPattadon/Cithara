@@ -41,6 +41,9 @@ class Song(models.Model):
     creator = models.ForeignKey(SongCreator, on_delete=models.CASCADE)
     library = models.ForeignKey(Library, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.title
+
 class SongGeneration(models.Model):
     STATUS_CHOICES = [
         ('PENDING', 'Pending'),

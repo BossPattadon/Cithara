@@ -50,15 +50,18 @@ Open this URL in your browser: http://127.0.0.1:8000/admin
 ## CRUD Demonstration
 
 ### 1. Create
-![Create](CRUD_screenshots/image.png)
+![Create](CRUD_screenshots/CreateSong.png)
 
 ### 2. Read
-![Read](CRUD_screenshots/image-1.png)
+![Read](CRUD_screenshots/ListSong.png)
 
 ### 3. Update
-![Update](CRUD_screenshots/image-5.png)
-![Update](CRUD_screenshots/image-2.png)
+
+![Update](CRUD_screenshots/UpdateSong.png)
+
+![Update](CRUD_screenshots/UpdatedHistory.png)
 
 ### 4. Delete
-![Delete](CRUD_screenshots/image-3.png)
-![Delete](CRUD_screenshots/image-4.png)
+![Delete](CRUD_screenshots/DeleteSong.png)
+
+![Delete](CRUD_screenshots/DeletedSuccess.png)
