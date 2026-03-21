@@ -3,7 +3,7 @@ A Django AI-generated song web application
 
 ## Domain Model
 <p align="center">
-  <img src="DomainModelDiagram.png" width="500">
+  <img src="DomainModelDiagram.png" width="600">
 </p>
 
 ## Setup Virtual Environment
