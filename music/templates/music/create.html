@@ -1,0 +1,76 @@
+{% extends 'music/base.html' %}
+{% block title %}Create Song – Cithara{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-7">
+    <h2 class="fw-bold mb-1">Create a New Song</h2>
+    <p class="text-secondary mb-4">Fill in the details below and let AI do the rest.</p>
+
+    <div class="card p-4 p-md-5">
+      <form method="post" action="/generate/">
+        {% csrf_token %}
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Song Title <span class="text-danger">*</span></label>
+          <input type="text" name="title" class="form-control" placeholder="e.g. Happy Birthday Song" required maxlength="200">
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Genre <span class="text-danger">*</span></label>
+            <select name="genre" class="form-select" required>
+              <option value="">Select genre</option>
+              {% for value, label in genre_choices %}
+              <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Mood <span class="text-danger">*</span></label>
+            <select name="mood" class="form-select" required>
+              <option value="">Select mood</option>
+              {% for value, label in mood_choices %}
+              <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Occasion <span class="text-danger">*</span></label>
+          <input type="text" name="occasion" class="form-control" placeholder="e.g. Birthday Party, Wedding, Graduation" required maxlength="200">
+        </div>
+
+        <div class="mb-5">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="form-label fw-semibold mb-0">Prompt <span class="text-secondary fw-normal">(optional)</span></label>
+            <span class="text-secondary small" id="char-count">0 / 1000</span>
+          </div>
+          <textarea name="prompt_text" class="form-control" rows="4" id="prompt-input"
+            placeholder="Describe your song — theme, lyrics style, instruments, emotions..."
+            maxlength="1000"></textarea>
+          <div class="form-text text-secondary mt-1">Leave blank and the AI will generate everything.</div>
+        </div>
+
+        <div class="d-flex gap-3">
+          <button type="submit" class="btn btn-purple px-4">Generate Song</button>
+          <a href="/" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+  const input = document.getElementById('prompt-input');
+  const counter = document.getElementById('char-count');
+  input.addEventListener('input', () => {
+    const n = input.value.length;
+    counter.textContent = `${n} / 1000`;
+    counter.style.color = n > 900 ? '#f87171' : '#6b7280';
+  });
+</script>
+{% endblock %}

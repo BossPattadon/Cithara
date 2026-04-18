@@ -1,0 +1,62 @@
+{% extends 'music/base.html' %}
+{% block title %}{{ song.title }} – Generating – Cithara{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-md-7 col-lg-6 text-center">
+    <h2 class="fw-bold mb-1">{{ song.title }}</h2>
+    <p class="text-secondary mb-5">{{ song.get_genre_display }} &middot; {{ song.get_mood_display }} &middot; {{ song.occasion }}</p>
+
+    <div class="card p-5">
+      {% if generation.status == 'COMPLETED' %}
+        <div style="font-size:3rem" class="mb-3">&#10003;</div>
+        <h4 class="mb-1" style="color:#34d399">Song Ready!</h4>
+        <p class="text-secondary mb-4">Your song has been generated successfully.</p>
+        {% if song.audio_file_path %}
+        <audio controls class="w-100 mb-4">
+          <source src="{{ song.audio_file_path }}" type="audio/mpeg">
+        </audio>
+        {% endif %}
+        <div class="d-flex justify-content-center gap-3">
+          <a href="/song/{{ song.id }}/" class="btn btn-purple px-4">View Song</a>
+          <a href="/library/" class="btn btn-outline-secondary px-4">Library</a>
+        </div>
+
+      {% elif generation.status == 'FAILED' %}
+        <div style="font-size:3rem" class="mb-3">&#10007;</div>
+        <h4 class="mb-1" style="color:#f87171">Generation Failed</h4>
+        <p class="text-secondary mb-4">Something went wrong. Please try again.</p>
+        <div class="d-flex justify-content-center gap-3">
+          <a href="/create/" class="btn btn-purple px-4">Try Again</a>
+          <a href="/library/" class="btn btn-outline-secondary px-4">Library</a>
+        </div>
+
+      {% else %}
+        <div class="spinner-border mb-4" role="status" style="width:3rem;height:3rem;color:#7c3aed;"></div>
+        <h4 class="mb-1">Generating your song...</h4>
+        <p class="text-secondary mb-4">This usually takes 1–2 minutes.</p>
+        <span class="badge rounded-pill px-3 py-2 badge-status-processing">{{ generation.status }}</span>
+        {% if generation.task_id %}
+        <p class="text-secondary small mt-3 mb-0">Task ID: <code style="color:#9ca3af">{{ generation.task_id }}</code></p>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+{% if generation.status != 'COMPLETED' and generation.status != 'FAILED' %}
+<script>
+  setInterval(() => {
+    fetch('/song/{{ song.id }}/status/api/')
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'COMPLETED' || data.status === 'FAILED') {
+          location.reload();
+        }
+      });
+  }, 5000);
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'music/base.html' %}
+{% block title %}Cithara – AI Song Generator{% endblock %}
+{% block content %}
+
+<div class="text-center py-5">
+  <h1 class="display-2 fw-bold mb-3" style="background: linear-gradient(135deg,#a78bfa,#60a5fa); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+    Cithara
+  </h1>
+  <p class="lead text-secondary mb-2">Generate AI-powered songs from your ideas.</p>
+  <p class="text-secondary mb-5">Just describe what you want — we'll create the music.</p>
+  <div class="d-flex justify-content-center gap-3 flex-wrap">
+    <a href="/create/" class="btn btn-purple btn-lg px-5">Create a Song</a>
+    <a href="/library/" class="btn btn-outline-secondary btn-lg px-5">View Library
+      {% if total_songs %}<span class="badge bg-secondary ms-1">{{ total_songs }}</span>{% endif %}
+    </a>
+  </div>
+</div>
+
+<div class="row mt-4 g-4 justify-content-center">
+  <div class="col-md-4">
+    <div class="card p-4 h-100 text-center">
+      <div style="font-size:2.5rem" class="mb-3">🎼</div>
+      <h5 class="fw-semibold">Describe Your Song</h5>
+      <p class="text-secondary small mb-0">Choose genre, mood, occasion and write a prompt to guide the AI.</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-4 h-100 text-center">
+      <div style="font-size:2.5rem" class="mb-3">⚡</div>
+      <h5 class="fw-semibold">AI Generates It</h5>
+      <p class="text-secondary small mb-0">Suno AI composes a unique song based on your inputs in minutes.</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-4 h-100 text-center">
+      <div style="font-size:2.5rem" class="mb-3">🎧</div>
+      <h5 class="fw-semibold">Listen &amp; Share</h5>
+      <p class="text-secondary small mb-0">Play directly in the browser, download, or share with a link.</p>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

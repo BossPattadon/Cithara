@@ -1,0 +1,90 @@
+{% extends 'music/base.html' %}
+{% block title %}{{ song.title }} – Cithara{% endblock %}
+{% block content %}
+
+<div class="mb-4">
+  <a href="/library/" class="text-secondary text-decoration-none small">&#8592; Back to Library</a>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-7">
+    <div class="card p-4 p-md-5">
+
+      <div class="d-flex justify-content-between align-items-start mb-1">
+        <h2 class="fw-bold mb-0">{{ song.title }}</h2>
+        {% if generation %}
+          {% if generation.status == 'COMPLETED' %}
+          <span class="badge rounded-pill badge-status-completed">Done</span>
+          {% elif generation.status == 'FAILED' %}
+          <span class="badge rounded-pill badge-status-failed">Failed</span>
+          {% elif generation.status == 'PROCESSING' %}
+          <span class="badge rounded-pill badge-status-processing">Processing</span>
+          {% else %}
+          <span class="badge rounded-pill badge-status-pending">Pending</span>
+          {% endif %}
+        {% endif %}
+      </div>
+      <p class="text-secondary mb-4">{{ song.get_genre_display }} &middot; {{ song.get_mood_display }} &middot; {{ song.occasion }}</p>
+
+      {% if song.audio_file_path %}
+      <audio controls class="w-100 mb-4">
+        <source src="{{ song.audio_file_path }}" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+      {% elif generation and generation.status == 'PROCESSING' %}
+      <div class="p-4 mb-4 rounded text-center" style="background:#1f2937">
+        <div class="spinner-border spinner-border-sm me-2" style="color:#7c3aed"></div>
+        <span class="text-secondary">Still generating...</span>
+        <div class="mt-2">
+          <a href="/song/{{ song.id }}/status/" class="btn btn-sm btn-outline-secondary">Check Status</a>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if song.prompt_text %}
+      <div class="p-3 rounded mb-4" style="background:#1f2937">
+        <p class="text-secondary small mb-1">Prompt</p>
+        <p class="mb-0">{{ song.prompt_text }}</p>
+      </div>
+      {% endif %}
+
+      {% if generation and generation.task_id %}
+      <p class="text-secondary small mb-1">Task ID: <code style="color:#9ca3af">{{ generation.task_id }}</code></p>
+      {% endif %}
+      <p class="text-secondary small mb-4">Created: {{ song.created_at|date:"M d, Y H:i" }}</p>
+
+      <div class="d-flex gap-2 flex-wrap">
+        {% if song.audio_file_path %}
+        <a href="{{ song.audio_file_path }}" class="btn btn-purple" target="_blank">Download</a>
+        {% endif %}
+        <form method="post" action="/song/{{ song.id }}/share/">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-light">Share Link</button>
+        </form>
+        <form method="post" action="/song/{{ song.id }}/delete/"
+              onsubmit="return confirm('Delete \'{{ song.title }}\'?')">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger">Delete</button>
+        </form>
+      </div>
+
+      {% if share_links %}
+      <div class="mt-4 pt-4" style="border-top:1px solid #1f2937">
+        <p class="text-secondary small mb-3">Share Links</p>
+        {% for link in share_links %}
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <input type="text" class="form-control form-control-sm" value="{{ link.url }}" readonly id="link-{{ link.id }}">
+          <button class="btn btn-sm btn-outline-secondary flex-shrink-0"
+                  onclick="navigator.clipboard.writeText(document.getElementById('link-{{ link.id }}').value);this.textContent='Copied!'">
+            Copy
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
