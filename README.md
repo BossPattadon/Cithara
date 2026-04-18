@@ -1,4 +1,4 @@
-# Cithra
+# Cithara
 A Django AI-generated song web application
 
 ## Domain Model
