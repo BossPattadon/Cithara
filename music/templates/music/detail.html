@@ -27,7 +27,7 @@
       <p class="text-secondary mb-4">{{ song.get_genre_display }} &middot; {{ song.get_mood_display }} &middot; {{ song.occasion }}</p>
 
       {% if song.audio_file_path %}
-      <audio controls class="w-100 mb-4">
+      <audio controls controlsList="nodownload" class="w-100 mb-4">
         <source src="{{ song.audio_file_path }}" type="audio/mpeg">
         Your browser does not support the audio element.
       </audio>
@@ -55,7 +55,7 @@
 
       <div class="d-flex gap-2 flex-wrap">
         {% if song.audio_file_path %}
-        <a href="{{ song.audio_file_path }}" class="btn btn-purple" target="_blank">Download</a>
+        <a href="/song/{{ song.id }}/download/" class="btn btn-purple">Download</a>
         {% endif %}
         <form method="post" action="/song/{{ song.id }}/share/">
           {% csrf_token %}

@@ -33,7 +33,7 @@
       <p class="text-secondary small mb-3">{{ song.occasion }}</p>
 
       {% if song.audio_file_path %}
-      <audio controls class="w-100 mb-3" style="height:36px">
+      <audio controls controlsList="nodownload" class="w-100 mb-3" style="height:36px">
         <source src="{{ song.audio_file_path }}" type="audio/mpeg">
       </audio>
       {% endif %}
@@ -67,4 +67,15 @@
 </div>
 {% endif %}
 
+{% endblock %}
+{% block scripts %}
+<script>
+  document.querySelectorAll('audio').forEach(audio => {
+    audio.addEventListener('play', () => {
+      document.querySelectorAll('audio').forEach(other => {
+        if (other !== audio) other.pause();
+      });
+    });
+  });
+</script>
 {% endblock %}

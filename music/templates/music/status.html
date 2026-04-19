@@ -32,12 +32,38 @@
         </div>
 
       {% else %}
-        <div class="spinner-border mb-4" role="status" style="width:3rem;height:3rem;color:#7c3aed;"></div>
+        <div class="d-flex justify-content-center mb-4">
+          <div class="spinner-border" role="status" style="width:2.5rem;height:2.5rem;color:#7c3aed;"></div>
+        </div>
         <h4 class="mb-1">Generating your song...</h4>
         <p class="text-secondary mb-4">This usually takes 1–2 minutes.</p>
-        <span class="badge rounded-pill px-3 py-2 badge-status-processing">{{ generation.status }}</span>
+
+        <div class="mb-2 d-flex justify-content-between">
+          <small id="step-label" class="text-secondary">Preparing...</small>
+          <small id="time-elapsed" class="text-secondary">0s</small>
+        </div>
+        <div class="rounded-pill mb-4" style="height:6px;background:#1f2937;overflow:hidden;">
+          <div id="progress-bar" class="rounded-pill"
+               style="height:100%;width:0%;background:linear-gradient(90deg,#7c3aed,#60a5fa);transition:width 1.2s ease;"></div>
+        </div>
+
+        <div class="d-flex justify-content-around mb-4">
+          <div class="text-center" id="step-1" style="opacity:.35;transition:opacity .5s">
+            <div style="font-size:1.5rem">🎤</div>
+            <small class="text-secondary">Lyrics</small>
+          </div>
+          <div class="text-center" id="step-2" style="opacity:.35;transition:opacity .5s">
+            <div style="font-size:1.5rem">🎵</div>
+            <small class="text-secondary">Music</small>
+          </div>
+          <div class="text-center" id="step-3" style="opacity:.35;transition:opacity .5s">
+            <div style="font-size:1.5rem">✨</div>
+            <small class="text-secondary">Finishing</small>
+          </div>
+        </div>
+
         {% if generation.task_id %}
-        <p class="text-secondary small mt-3 mb-0">Task ID: <code style="color:#9ca3af">{{ generation.task_id }}</code></p>
+        <p class="text-secondary small mb-0">Task ID: <code style="color:#9ca3af">{{ generation.task_id }}</code></p>
         {% endif %}
       {% endif %}
     </div>
@@ -48,12 +74,49 @@
 {% block scripts %}
 {% if generation.status != 'COMPLETED' and generation.status != 'FAILED' %}
 <script>
+  const startTime = Date.now();
+  let prog = 0;
+
+  const steps = [
+    { id: 'step-1', threshold: 5,  label: 'Writing lyrics...' },
+    { id: 'step-2', threshold: 35, label: 'Composing music...' },
+    { id: 'step-3', threshold: 72, label: 'Finalizing song...' },
+  ];
+
+  function calcTarget(sec) {
+    if (sec < 15)  return sec / 15 * 20;
+    if (sec < 55)  return 20 + (sec - 15) / 40 * 45;
+    if (sec < 100) return 65 + (sec - 55) / 45 * 25;
+    return Math.min(90 + (sec - 100) / 60 * 5, 95);
+  }
+
+  function tick() {
+    const sec = (Date.now() - startTime) / 1000;
+    const target = calcTarget(sec);
+    if (target > prog) {
+      prog = target;
+      document.getElementById('progress-bar').style.width = prog + '%';
+      document.getElementById('time-elapsed').textContent = Math.floor(sec) + 's';
+
+      steps.forEach(s => {
+        if (prog >= s.threshold) {
+          document.getElementById(s.id).style.opacity = '1';
+          document.getElementById('step-label').textContent = s.label;
+        }
+      });
+    }
+  }
+
+  setInterval(tick, 800);
+
   setInterval(() => {
     fetch('/song/{{ song.id }}/status/api/')
       .then(r => r.json())
       .then(data => {
         if (data.status === 'COMPLETED' || data.status === 'FAILED') {
-          location.reload();
+          document.getElementById('progress-bar').style.width = '100%';
+          steps.forEach(s => document.getElementById(s.id).style.opacity = '1');
+          setTimeout(() => location.reload(), 600);
         }
       });
   }, 5000);
