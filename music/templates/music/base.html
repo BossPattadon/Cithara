@@ -106,6 +106,8 @@
       flex-direction: column;
       z-index: 100;
       overflow-y: auto;
+      background: rgba(18,12,36,0.75);
+      border-right: 1px solid rgba(124,58,237,0.12);
     }
 
     .c-nav-link {
@@ -380,25 +382,204 @@
     }
     .c-player-sub { font-size: .72rem; color: var(--muted); }
 
-    .c-player-audio-wrap {
-      flex: 2; display: flex; align-items: center; justify-content: center;
+    /* ── Player redesign ── */
+    .c-player {
+      flex-direction: column !important;
+      padding: 0 !important;
+      height: auto !important;
+      gap: 0 !important;
     }
-    audio {
-      width: 100%; max-width: 500px; height: 34px;
-      accent-color: var(--accent1);
+
+    /* Thin progress bar at top */
+    .p-progress-track {
+      width: 100%;
+      height: 3px;
+      background: rgba(255,255,255,.1);
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
     }
-    .c-player-r {
-      flex: 1;
+    .p-progress-track:hover { height: 5px; }
+    .p-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      width: 0%;
+      transition: width .5s linear;
+      pointer-events: none;
+    }
+    .p-progress-thumb {
+      position: absolute;
+      top: 50%; right: -6px;
+      width: 12px; height: 12px;
+      background: #fff;
+      border-radius: 50%;
+      transform: translateY(-50%) scale(0);
+      transition: transform .15s;
+      pointer-events: none;
+    }
+    .p-progress-track:hover .p-progress-thumb { transform: translateY(-50%) scale(1); }
+
+    /* Main row */
+    .p-main-row {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
+      width: 100%;
+      padding: 0 20px;
+      height: 68px;
+      gap: 0;
     }
-    #viz-canvas {
+
+    /* Left: controls + time */
+    .p-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .p-ctrl-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,.7);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: color .15s, background .15s;
+      flex-shrink: 0;
+    }
+    .p-ctrl-btn:hover { color: #fff; background: rgba(255,255,255,.08); }
+    .p-ctrl-btn.play-main {
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,.1);
+    }
+    .p-ctrl-btn.play-main:hover { background: rgba(255,255,255,.18); }
+    .p-time {
+      font-size: .72rem;
+      color: rgba(255,255,255,.5);
+      margin-left: 10px;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Center: art + info */
+    .p-center {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+      padding: 0 24px;
+    }
+    .p-art {
+      width: 44px; height: 44px;
       border-radius: 6px;
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .p-info { min-width: 0; }
+    .p-title { font-size: .85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .p-sub   { font-size: .72rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+
+    /* Right: speed + volume + viz */
+    .p-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* CSS visualizer bars */
+    .viz-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 36px;
       opacity: 0;
       transition: opacity .4s;
     }
-    #viz-canvas.active { opacity: 1; }
+    .viz-bars.active { opacity: 1; }
+    .viz-bar {
+      width: 4px;
+      border-radius: 2px;
+      background: linear-gradient(to top, var(--accent1), var(--accent2));
+      animation: none;
+      height: 4px;
+    }
+    .viz-bars.active .viz-bar { animation: bar-bounce var(--dur) ease-in-out infinite alternate; }
+    @keyframes bar-bounce {
+      from { height: 4px; }
+      to   { height: var(--h); }
+    }
+
+    /* Volume */
+    .vol-wrap { display: flex; align-items: center; gap: 6px; }
+    .vol-slider {
+      -webkit-appearance: none;
+      width: 72px; height: 3px;
+      background: rgba(255,255,255,.2);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+      accent-color: #fff;
+    }
+    .vol-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    /* Speed control */
+    .speed-wrap { position: relative; }
+    .speed-btn {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      color: rgba(255,255,255,.55);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: .7rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: .5px;
+      transition: background .15s, color .15s, border-color .15s;
+      white-space: nowrap;
+    }
+    .speed-btn:hover { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.2); }
+    .speed-btn.active-speed { background: rgba(124,58,237,.25); color: #a78bfa; border-color: rgba(124,58,237,.4); }
+    .speed-menu {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      right: 0;
+      background: rgba(12,12,24,.96);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 12px;
+      padding: 6px;
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 88px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+      z-index: 999;
+    }
+    .speed-menu.open { display: flex; }
+    .speed-opt {
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: .78rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.55);
+      cursor: pointer;
+      transition: background .12s, color .12s;
+      text-align: center;
+      border: none;
+      background: transparent;
+    }
+    .speed-opt:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .speed-opt.selected { color: #a78bfa; background: rgba(124,58,237,.18); }
 
     /* ══════════════════════════════════════
        MISC
@@ -487,10 +668,6 @@
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
     Library
   </a>
-  <a href="/create/" class="c-nav-link {% if request.resolver_match.url_name == 'create_song' %}active{% endif %}">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
-    Create Song
-  </a>
   {% endif %}
 
 </aside>
@@ -502,106 +679,201 @@
 
 <!-- ── Player ── -->
 <div class="c-player" id="c-player" style="display:none">
-  <div class="c-player-info">
-    <div class="c-player-thumb" id="p-thumb"></div>
-    <div class="c-player-text">
-      <div class="c-player-title" id="p-title">—</div>
-      <div class="c-player-sub"   id="p-sub">Cithara</div>
+
+  <!-- Progress bar -->
+  <div class="p-progress-track" id="p-track" onclick="seekAudio(event)">
+    <div class="p-progress-fill" id="p-fill"></div>
+    <div class="p-progress-thumb" id="p-thumb-dot"></div>
+  </div>
+
+  <!-- Main row -->
+  <div class="p-main-row">
+
+    <!-- Left: controls + time -->
+    <div class="p-controls">
+      <button class="p-ctrl-btn" onclick="skipSec(-10)" title="Back 10s">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+      </button>
+      <button class="p-ctrl-btn play-main" id="play-pause-btn" onclick="togglePlay()">
+        <svg id="play-icon"  width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="pause-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+      </button>
+      <button class="p-ctrl-btn" onclick="skipSec(10)" title="Forward 10s">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2-8.14 5.51 3.64L8 17.14V9.86zM16 6h2v12h-2z"/></svg>
+      </button>
+      <span class="p-time"><span id="cur-time">0:00</span> / <span id="dur-time">0:00</span></span>
     </div>
+
+    <!-- Center: art + title -->
+    <div class="p-center">
+      <div class="p-art" id="p-thumb"></div>
+      <div class="p-info">
+        <div class="p-title" id="p-title">—</div>
+        <div class="p-sub"   id="p-sub">Cithara</div>
+      </div>
+    </div>
+
+    <!-- Right: volume + speed + viz -->
+    <div class="p-right">
+      <div class="vol-wrap">
+        <button class="p-ctrl-btn" id="vol-icon-btn" onclick="toggleMute()" title="Mute">
+          <svg id="vol-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+          </svg>
+        </button>
+        <input type="range" class="vol-slider" id="vol-slider" min="0" max="1" step="0.02"
+               value="1" oninput="setVolume(this.value)">
+      </div>
+
+      <div class="speed-wrap">
+        <button class="speed-btn" id="speed-btn" onclick="toggleSpeedMenu()">1×</button>
+        <div class="speed-menu" id="speed-menu">
+          <button class="speed-opt" onclick="setSpeed(0.5)">0.5×</button>
+          <button class="speed-opt" onclick="setSpeed(0.75)">0.75×</button>
+          <button class="speed-opt selected" onclick="setSpeed(1)">1×</button>
+          <button class="speed-opt" onclick="setSpeed(1.25)">1.25×</button>
+          <button class="speed-opt" onclick="setSpeed(1.5)">1.5×</button>
+          <button class="speed-opt" onclick="setSpeed(2)">2×</button>
+        </div>
+      </div>
+
+      <div class="viz-bars" id="viz-bars">
+        <div class="viz-bar" style="--dur:.6s;  --h:28px"></div>
+        <div class="viz-bar" style="--dur:.45s; --h:36px"></div>
+        <div class="viz-bar" style="--dur:.7s;  --h:20px"></div>
+        <div class="viz-bar" style="--dur:.5s;  --h:32px"></div>
+        <div class="viz-bar" style="--dur:.65s; --h:24px"></div>
+        <div class="viz-bar" style="--dur:.4s;  --h:36px"></div>
+        <div class="viz-bar" style="--dur:.55s; --h:18px"></div>
+        <div class="viz-bar" style="--dur:.75s; --h:30px"></div>
+      </div>
+    </div>
+
   </div>
-  <div class="c-player-audio-wrap">
-    <audio id="g-audio" controls controlsList="nodownload">
-      <source id="g-src" src="" type="audio/mpeg">
-    </audio>
-  </div>
-  <div class="c-player-r">
-    <canvas id="viz-canvas" width="120" height="40"></canvas>
-  </div>
+
+  <audio id="g-audio" style="display:none">
+    <source id="g-src" src="" type="audio/mpeg">
+  </audio>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-/* ── Audio Visualizer ── */
-let _ctx, _analyser, _src, _rafId;
+/* ── Visualizer (CSS-based) ── */
+function _showViz()  { document.getElementById('viz-bars')?.classList.add('active'); }
+function _hideViz()  { document.getElementById('viz-bars')?.classList.remove('active'); }
 
-function _setupViz(audioEl) {
-  if (_src) return;
-  _ctx     = new (window.AudioContext || window.webkitAudioContext)();
-  _analyser = _ctx.createAnalyser();
-  _analyser.fftSize = 64;
-  _analyser.smoothingTimeConstant = 0.8;
-  _src = _ctx.createMediaElementSource(audioEl);
-  _src.connect(_analyser);
-  _analyser.connect(_ctx.destination);
+/* ── Player controls ── */
+function fmt(s) {
+  if (isNaN(s)) return '0:00';
+  const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+  return m + ':' + String(sec).padStart(2, '0');
 }
 
-function _drawViz() {
-  const canvas = document.getElementById('viz-canvas');
-  const ctx    = canvas.getContext('2d');
-  const buf    = new Uint8Array(_analyser.frequencyBinCount);
-  const W = canvas.width, H = canvas.height;
+function togglePlay() {
+  const a = document.getElementById('g-audio');
+  if (!a) return;
+  a.paused ? a.play().catch(() => {}) : a.pause();
+}
 
-  function frame() {
-    _rafId = requestAnimationFrame(frame);
-    _analyser.getByteFrequencyData(buf);
-    ctx.clearRect(0, 0, W, H);
+function skipSec(s) {
+  const a = document.getElementById('g-audio');
+  if (a) a.currentTime = Math.max(0, Math.min(a.duration || 0, a.currentTime + s));
+}
 
-    const n    = buf.length;
-    const barW = W / n - 1;
+function seekAudio(e) {
+  const a = document.getElementById('g-audio');
+  if (!a || !a.duration) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  a.currentTime = ((e.clientX - rect.left) / rect.width) * a.duration;
+}
 
-    for (let i = 0; i < n; i++) {
-      const v  = buf[i] / 255;
-      const bH = Math.max(2, v * H);
-      const x  = i * (barW + 1);
-      const y  = H - bH;
+function setVolume(v) {
+  const a = document.getElementById('g-audio');
+  if (a) { a.volume = v; a.muted = v == 0; }
+  updateVolIcon(v);
+}
 
-      const grad = ctx.createLinearGradient(0, H, 0, y);
-      grad.addColorStop(0, '#7c3aed');
-      grad.addColorStop(1, '#60a5fa');
-      ctx.fillStyle = grad;
+function toggleMute() {
+  const a = document.getElementById('g-audio');
+  if (!a) return;
+  a.muted = !a.muted;
+  const vol = document.getElementById('vol-slider');
+  updateVolIcon(a.muted ? 0 : vol.value);
+}
 
-      const r = Math.min(barW / 2, 3);
-      ctx.beginPath();
-      ctx.roundRect(x, y, barW, bH, [r, r, 0, 0]);
-      ctx.fill();
-    }
+function updateVolIcon(v) {
+  const path = document.querySelector('#vol-icon path');
+  if (!path) return;
+  if (v == 0) {
+    path.setAttribute('d','M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z');
+  } else if (v < 0.5) {
+    path.setAttribute('d','M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z');
+  } else {
+    path.setAttribute('d','M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z');
   }
-  frame();
 }
 
-function playSong(url, title, sub, thumbHtml) {
+async function playSong(url, title, sub, thumbHtml) {
   if (!url) return;
   const a = document.getElementById('g-audio');
   document.getElementById('p-title').textContent = title || '';
   document.getElementById('p-sub').textContent   = sub   || 'Cithara';
   document.getElementById('p-thumb').innerHTML   = thumbHtml || '🎵';
   document.getElementById('g-src').src = url;
-  a.load();
-
-  a.play().then(() => {
-    _setupViz(a);
-    if (_ctx.state === 'suspended') _ctx.resume();
-    document.getElementById('viz-canvas').classList.add('active');
-    if (!_rafId) _drawViz();
-  }).catch(() => {});
-
   document.getElementById('c-player').style.display = 'flex';
+  a.load();
+  try { await a.play(); } catch(e) {}
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   const a = document.getElementById('g-audio');
   if (!a) return;
-  a.addEventListener('pause', () => {
-    document.getElementById('viz-canvas').classList.remove('active');
-    cancelAnimationFrame(_rafId); _rafId = null;
-  });
+
   a.addEventListener('play', () => {
-    if (_analyser) {
-      document.getElementById('viz-canvas').classList.add('active');
-      if (!_rafId) _drawViz();
-    }
+    document.getElementById('play-icon').style.display  = 'none';
+    document.getElementById('pause-icon').style.display = '';
+    _showViz();
+  });
+
+  a.addEventListener('pause', () => {
+    document.getElementById('play-icon').style.display  = '';
+    document.getElementById('pause-icon').style.display = 'none';
+    _hideViz();
+  });
+
+  a.addEventListener('timeupdate', () => {
+    const pct = a.duration ? (a.currentTime / a.duration) * 100 : 0;
+    document.getElementById('p-fill').style.width      = pct + '%';
+    document.getElementById('p-thumb-dot').style.left  = 'calc(' + pct + '% - 6px)';
+    document.getElementById('cur-time').textContent    = fmt(a.currentTime);
+  });
+
+  a.addEventListener('loadedmetadata', () => {
+    document.getElementById('dur-time').textContent = fmt(a.duration);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.speed-wrap'))
+      document.getElementById('speed-menu')?.classList.remove('open');
   });
 });
+
+function toggleSpeedMenu() {
+  document.getElementById('speed-menu').classList.toggle('open');
+}
+
+function setSpeed(rate) {
+  const a = document.getElementById('g-audio');
+  if (a) a.playbackRate = rate;
+  const label = rate === 1 ? '1×' : rate + '×';
+  const btn = document.getElementById('speed-btn');
+  btn.textContent = label;
+  btn.classList.toggle('active-speed', rate !== 1);
+  document.querySelectorAll('.speed-opt').forEach(o => {
+    o.classList.toggle('selected', parseFloat(o.textContent) === rate);
+  });
+  document.getElementById('speed-menu').classList.remove('open');
+}
 </script>
 {% block scripts %}{% endblock %}
 </body>

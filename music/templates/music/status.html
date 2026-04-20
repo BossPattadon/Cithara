@@ -2,14 +2,14 @@
 {% block title %}{{ song.title }} – Generating – Cithara{% endblock %}
 
 {% block content %}
-<div class="c-page-top">
+<div class="c-page-top" style="text-align:center">
   <h1 class="c-page-title">{{ song.title }}</h1>
   <p class="c-page-sub">{{ song.get_genre_display }} · {{ song.get_mood_display }} · {{ song.occasion }}</p>
 </div>
 
-<div class="c-content">
-  <div style="max-width:520px">
-    <div class="c-glass-card" style="padding:40px;text-align:center">
+<div class="c-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - var(--nav-h) - var(--player-h) - 140px)">
+  <div style="width:100%;max-width:520px">
+    <div class="c-glass-card" style="padding:48px 40px;text-align:center">
 
       {% if generation.status == 'COMPLETED' %}
         <div style="width:72px;height:72px;background:linear-gradient(135deg,rgba(52,211,153,.2),rgba(52,211,153,.05));border:1px solid rgba(52,211,153,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.8rem">✓</div>

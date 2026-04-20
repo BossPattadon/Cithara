@@ -103,17 +103,7 @@
   <div class="row g-4">
     <div class="col-lg-7">
 
-      {% if song.audio_file_path %}
-      <div class="c-glass-card" style="padding:24px;margin-bottom:16px">
-        <div style="font-size:.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px">
-          Preview
-        </div>
-        <audio controls class="w-100" id="detail-audio"
-               style="accent-color:var(--accent1)" controlsList="nodownload">
-          <source src="{{ song.audio_file_path }}" type="audio/mpeg">
-        </audio>
-      </div>
-      {% elif generation and generation.status == 'PROCESSING' %}
+      {% if generation and generation.status == 'PROCESSING' %}
       <div class="c-glass-card" style="padding:24px;margin-bottom:16px;text-align:center">
         <div class="spinner-border spinner-border-sm me-2" style="color:var(--accent1)"></div>
         <span style="color:var(--muted);font-size:.875rem">Still generating…</span>
