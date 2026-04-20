@@ -39,6 +39,11 @@
   </div>
 </div>
 
+<!-- Decorative sound wave -->
+<div style="padding:0 36px;margin-bottom:16px;overflow:hidden;height:56px">
+  <canvas id="deco-wave" width="900" height="56" style="width:100%;height:56px;opacity:.55"></canvas>
+</div>
+
 <!-- Steps -->
 <div style="padding:0 36px 80px">
   <div style="font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:20px">
@@ -83,4 +88,44 @@
   50%      { opacity:.5; transform:scale(.8); }
 }
 </style>
+<script>
+(function() {
+  const canvas = document.getElementById('deco-wave');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  let t = 0;
+
+  const BARS = 48;
+  const colors = ['#7c3aed','#6d28d9','#5b21b6','#4c1d95','#3b82f6','#2563eb'];
+
+  function draw() {
+    requestAnimationFrame(draw);
+    ctx.clearRect(0, 0, W, H);
+    t += 0.04;
+
+    const barW = W / BARS;
+
+    for (let i = 0; i < BARS; i++) {
+      const phase = (i / BARS) * Math.PI * 4 + t;
+      const h = (Math.sin(phase) * 0.4 + Math.sin(phase * 1.7 + 1) * 0.3 + 0.3) * H * 0.85;
+      const x = i * barW;
+      const y = (H - h) / 2;
+
+      const color = colors[i % colors.length];
+      const grad = ctx.createLinearGradient(0, y, 0, y + h);
+      grad.addColorStop(0, color + 'aa');
+      grad.addColorStop(0.5, color);
+      grad.addColorStop(1, color + 'aa');
+      ctx.fillStyle = grad;
+
+      const r = Math.min(barW * 0.4, 4);
+      ctx.beginPath();
+      ctx.roundRect(x + 1, y, barW - 2, h, r);
+      ctx.fill();
+    }
+  }
+  draw();
+})();
+</script>
 {% endblock %}
