@@ -493,25 +493,6 @@
   </a>
   {% endif %}
 
-  {% if request.user.is_authenticated %}
-  <div class="c-sidebar-foot">
-    <div class="dropdown">
-      <div class="c-user-row" data-bs-toggle="dropdown">
-        {% for account in request.user.socialaccount_set.all %}
-          {% if account.provider == 'google' and account.extra_data.picture %}
-          <img src="{{ account.extra_data.picture }}" width="28" height="28"
-               class="rounded-circle" style="flex-shrink:0">
-          {% endif %}
-        {% endfor %}
-        <div style="min-width:0">
-          <div style="font-size:.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-            <span style="color:#e0e0ff">{{ request.user.get_full_name|truncatechars:18 }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  {% endif %}
 </aside>
 
 <!-- ── Main ── -->
