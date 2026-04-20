@@ -159,3 +159,13 @@ def create_share_link(request, song_id):
         share_url = request.build_absolute_uri(f'/song/{song_id}/')
         ShareLink.objects.create(song=song, url=share_url)
     return redirect('song_detail', song_id=song_id)
+
+
+def shared_song(request, token):
+    song = get_object_or_404(Song, share_token=token)
+    generation = SongGeneration.objects.filter(song=song).first()
+    return render(request, 'music/detail.html', {
+        'song': song,
+        'generation': generation,
+        'share_links': [],
+    })

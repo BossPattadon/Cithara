@@ -168,7 +168,7 @@ const GRADS = [
   ['#fccb90','#d57eeb'],['#e0c3fc','#8ec5fc'],
 ];
 function copyShareLink(btn) {
-  const url = window.location.origin + '/song/{{ song.id }}/';
+  const url = window.location.origin + '/share/{{ song.share_token }}/';
   navigator.clipboard.writeText(url).then(() => {
     const orig = btn.innerHTML;
     btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:6px"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Link copied!`;

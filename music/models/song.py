@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from .user import SongCreator
 from .library import Library
@@ -26,6 +27,8 @@ class Song(models.Model):
     prompt_text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     audio_file_path = models.CharField(max_length=255)
+
+    share_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
 
     creator = models.ForeignKey(SongCreator, on_delete=models.CASCADE)
     library = models.ForeignKey(Library, on_delete=models.CASCADE)

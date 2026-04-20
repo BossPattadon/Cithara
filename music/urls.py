@@ -12,4 +12,5 @@ urlpatterns = [
     path('song/<int:song_id>/download/', views.download_song, name='download_song'),
     path('song/<int:song_id>/share/', views.create_share_link, name='create_share_link'),
     path('library/', views.library, name='library'),
+    path('share/<uuid:token>/', views.shared_song, name='shared_song'),
 ]
