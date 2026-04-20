@@ -1,76 +1,137 @@
 {% extends 'music/base.html' %}
 {% block title %}Create Song – Cithara{% endblock %}
+
 {% block content %}
-
-<div class="row justify-content-center">
-  <div class="col-md-8 col-lg-7">
-    <h2 class="fw-bold mb-1">Create a New Song</h2>
-    <p class="text-secondary mb-4">Fill in the details below and let AI do the rest.</p>
-
-    <div class="card p-4 p-md-5">
-      <form method="post" action="/generate/">
-        {% csrf_token %}
-
-        <div class="mb-4">
-          <label class="form-label fw-semibold">Song Title <span class="text-danger">*</span></label>
-          <input type="text" name="title" class="form-control" placeholder="e.g. Happy Birthday Song" required maxlength="200">
-        </div>
-
-        <div class="row g-3 mb-4">
-          <div class="col-md-6">
-            <label class="form-label fw-semibold">Genre <span class="text-danger">*</span></label>
-            <select name="genre" class="form-select" required>
-              <option value="">Select genre</option>
-              {% for value, label in genre_choices %}
-              <option value="{{ value }}">{{ label }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label fw-semibold">Mood <span class="text-danger">*</span></label>
-            <select name="mood" class="form-select" required>
-              <option value="">Select mood</option>
-              {% for value, label in mood_choices %}
-              <option value="{{ value }}">{{ label }}</option>
-              {% endfor %}
-            </select>
-          </div>
-        </div>
-
-        <div class="mb-4">
-          <label class="form-label fw-semibold">Occasion <span class="text-danger">*</span></label>
-          <input type="text" name="occasion" class="form-control" placeholder="e.g. Birthday Party, Wedding, Graduation" required maxlength="200">
-        </div>
-
-        <div class="mb-5">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <label class="form-label fw-semibold mb-0">Prompt <span class="text-secondary fw-normal">(optional)</span></label>
-            <span class="text-secondary small" id="char-count">0 / 1000</span>
-          </div>
-          <textarea name="prompt_text" class="form-control" rows="4" id="prompt-input"
-            placeholder="Describe your song — theme, lyrics style, instruments, emotions..."
-            maxlength="1000"></textarea>
-          <div class="form-text text-secondary mt-1">Leave blank and the AI will generate everything.</div>
-        </div>
-
-        <div class="d-flex gap-3">
-          <button type="submit" class="btn btn-purple px-4">Generate Song</button>
-          <a href="/" class="btn btn-outline-secondary">Cancel</a>
-        </div>
-      </form>
-    </div>
-  </div>
+<div class="c-page-top">
+  <h1 class="c-page-title">Create a Song</h1>
+  <p class="c-page-sub">Describe what you want — AI will compose it for you.</p>
 </div>
 
+<div class="c-content">
+  <div class="row g-4">
+
+    <!-- Form -->
+    <div class="col-lg-7 col-xl-6">
+      <div class="c-glass-card" style="padding:36px">
+        <form method="post" action="/generate/">
+          {% csrf_token %}
+
+          <div style="margin-bottom:22px">
+            <label class="form-label">Song Title <span style="color:#f87171;font-weight:400;text-transform:none;letter-spacing:0">*</span></label>
+            <input type="text" name="title" class="form-control"
+                   placeholder="e.g. Happy Birthday Song" required maxlength="200"
+                   style="padding:11px 14px;font-size:.9rem">
+          </div>
+
+          <div class="row g-3" style="margin-bottom:22px">
+            <div class="col-md-6">
+              <label class="form-label">Genre <span style="color:#f87171;font-weight:400;text-transform:none;letter-spacing:0">*</span></label>
+              <select name="genre" class="form-select" required style="padding:11px 14px;font-size:.9rem">
+                <option value="">Select genre</option>
+                {% for value, label in genre_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Mood <span style="color:#f87171;font-weight:400;text-transform:none;letter-spacing:0">*</span></label>
+              <select name="mood" class="form-select" required style="padding:11px 14px;font-size:.9rem">
+                <option value="">Select mood</option>
+                {% for value, label in mood_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-bottom:22px">
+            <label class="form-label">Occasion <span style="color:#f87171;font-weight:400;text-transform:none;letter-spacing:0">*</span></label>
+            <input type="text" name="occasion" class="form-control"
+                   placeholder="e.g. Birthday Party, Wedding, Graduation"
+                   required maxlength="200" style="padding:11px 14px;font-size:.9rem">
+          </div>
+
+          <div style="margin-bottom:32px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <label class="form-label mb-0">
+                Prompt
+                <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(optional)</span>
+              </label>
+              <span style="font-size:.72rem;color:var(--muted)" id="char-count">0 / 1000</span>
+            </div>
+            <textarea name="prompt_text" class="form-control" rows="4" id="prompt-input"
+              placeholder="Describe your song — theme, lyrics, instruments, vibe..."
+              maxlength="1000" style="padding:11px 14px;font-size:.875rem;resize:vertical"></textarea>
+            <div style="font-size:.72rem;color:var(--muted);margin-top:6px">
+              Leave blank to let AI decide everything.
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px">
+            <button type="submit" class="btn-c btn" style="padding:12px 28px">Generate Song</button>
+            <a href="/library/" class="btn-c-ghost btn" style="padding:11px 24px">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Decorative side panel -->
+    <div class="col-lg-5 col-xl-6 d-none d-lg-flex align-items-center justify-content-center">
+      <div style="text-align:center;padding:32px">
+        <div id="preview-art"
+             style="width:180px;height:180px;border-radius:20px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:4rem;margin:0 auto 24px;box-shadow:0 20px 60px rgba(124,58,237,.35);transition:background .5s">
+          🎵
+        </div>
+        <h3 id="preview-title" style="font-size:1.1rem;font-weight:800;margin-bottom:6px;opacity:.3">Your Song Title</h3>
+        <p id="preview-meta" style="font-size:.825rem;color:var(--muted);opacity:.3">Genre · Mood</p>
+      </div>
+    </div>
+
+  </div>
+</div>
 {% endblock %}
+
 {% block scripts %}
 <script>
-  const input = document.getElementById('prompt-input');
-  const counter = document.getElementById('char-count');
-  input.addEventListener('input', () => {
-    const n = input.value.length;
-    counter.textContent = `${n} / 1000`;
-    counter.style.color = n > 900 ? '#f87171' : '#6b7280';
-  });
+const GRADS = [
+  ['#667eea','#764ba2'],['#f093fb','#f5576c'],['#4facfe','#00f2fe'],
+  ['#43e97b','#38f9d7'],['#fa709a','#fee140'],['#a18cd1','#fbc2eb'],
+];
+
+const titleEl   = document.querySelector('input[name=title]');
+const genreEl   = document.querySelector('select[name=genre]');
+const moodEl    = document.querySelector('select[name=mood]');
+const previewT  = document.getElementById('preview-title');
+const previewM  = document.getElementById('preview-meta');
+const previewA  = document.getElementById('preview-art');
+const counter   = document.getElementById('char-count');
+const promptEl  = document.getElementById('prompt-input');
+
+let gradIdx = 0;
+function updatePreview() {
+  const t = titleEl.value.trim();
+  const g = genreEl.options[genreEl.selectedIndex]?.text;
+  const m = moodEl.options[moodEl.selectedIndex]?.text;
+  previewT.textContent = t || 'Your Song Title';
+  previewT.style.opacity = t ? '1' : '.3';
+  const meta = [g !== 'Select genre' ? g : '', m !== 'Select mood' ? m : ''].filter(Boolean).join(' · ');
+  previewM.textContent = meta || 'Genre · Mood';
+  previewM.style.opacity = meta ? '1' : '.3';
+}
+
+[titleEl, genreEl, moodEl].forEach(el => el.addEventListener('change', updatePreview));
+titleEl.addEventListener('input', updatePreview);
+
+genreEl.addEventListener('change', () => {
+  gradIdx = (gradIdx + 1) % GRADS.length;
+  const [a,b] = GRADS[gradIdx];
+  previewA.style.background = `linear-gradient(135deg,${a},${b})`;
+});
+
+promptEl.addEventListener('input', () => {
+  const n = promptEl.value.length;
+  counter.textContent = `${n} / 1000`;
+  counter.style.color = n > 900 ? '#f87171' : 'var(--muted)';
+});
 </script>
 {% endblock %}

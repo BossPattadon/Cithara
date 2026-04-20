@@ -1,90 +1,183 @@
 {% extends 'music/base.html' %}
 {% block title %}{{ song.title }} – Cithara{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .detail-bg-blur {
+    position: absolute;
+    top: -60px; left: -80px;
+    width: 600px; height: 400px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: .35;
+    pointer-events: none;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
+<!-- Hero -->
+<div style="padding:48px 36px 36px;position:relative;overflow:hidden">
+  <div class="detail-bg-blur" id="detail-bg"></div>
 
-<div class="mb-4">
-  <a href="/library/" class="text-secondary text-decoration-none small">&#8592; Back to Library</a>
-</div>
+  <a href="/library/" style="display:inline-flex;align-items:center;gap:6px;font-size:.78rem;color:var(--muted);margin-bottom:28px;transition:color .15s"
+     onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--muted)'">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 16.58L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg>
+    Back to Library
+  </a>
 
-<div class="row justify-content-center">
-  <div class="col-md-8 col-lg-7">
-    <div class="card p-4 p-md-5">
+  <div style="display:flex;align-items:flex-end;gap:32px;flex-wrap:wrap">
+    <!-- Album art -->
+    <div id="detail-art"
+         style="width:190px;height:190px;border-radius:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:3.5rem;box-shadow:0 24px 64px rgba(0,0,0,.6)">
+      🎵
+    </div>
 
-      <div class="d-flex justify-content-between align-items-start mb-1">
-        <h2 class="fw-bold mb-0">{{ song.title }}</h2>
+    <!-- Info -->
+    <div style="min-width:0;padding-bottom:8px">
+      <div style="font-size:.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">
+        AI Generated Song
+      </div>
+      <h1 style="font-size:2.8rem;font-weight:900;letter-spacing:-1.5px;line-height:1.05;margin-bottom:12px">
+        {{ song.title }}
+      </h1>
+      <p style="color:var(--muted);margin-bottom:8px;font-size:.875rem">
+        {{ song.get_genre_display }} &middot; {{ song.get_mood_display }} &middot; {{ song.occasion }}
+      </p>
+      <div style="display:flex;align-items:center;gap:8px;font-size:.8rem;color:rgba(255,255,255,.3)">
+        <span>{{ song.created_at|date:"M d, Y" }}</span>
+        <span>·</span>
         {% if generation %}
-          {% if generation.status == 'COMPLETED' %}
-          <span class="badge rounded-pill badge-status-completed">Done</span>
-          {% elif generation.status == 'FAILED' %}
-          <span class="badge rounded-pill badge-status-failed">Failed</span>
-          {% elif generation.status == 'PROCESSING' %}
-          <span class="badge rounded-pill badge-status-processing">Processing</span>
-          {% else %}
-          <span class="badge rounded-pill badge-status-pending">Pending</span>
+          {% if generation.status == 'COMPLETED' %}<span class="sb sb-done">Ready</span>
+          {% elif generation.status == 'FAILED' %}<span class="sb sb-fail">Failed</span>
+          {% elif generation.status == 'PROCESSING' %}<span class="sb sb-proc">Processing</span>
+          {% else %}<span class="sb sb-pend">Pending</span>
           {% endif %}
         {% endif %}
       </div>
-      <p class="text-secondary mb-4">{{ song.get_genre_display }} &middot; {{ song.get_mood_display }} &middot; {{ song.occasion }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Action strip -->
+<div style="padding:0 36px 28px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+  {% if song.audio_file_path %}
+  <button id="play-big" onclick="detailPlay()"
+          style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 24px var(--glow);transition:filter .15s,transform .1s;flex-shrink:0"
+          onmouseover="this.style.filter='brightness(1.15)';this.style.transform='scale(1.05)'"
+          onmouseout="this.style.filter='';this.style.transform=''">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  {% endif %}
+
+  {% if song.audio_file_path %}
+  <a href="/song/{{ song.id }}/download/" class="btn-c-ghost btn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:6px">
+      <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+    </svg>
+    Download
+  </a>
+  {% endif %}
+
+  <form method="post" action="/song/{{ song.id }}/share/">
+    {% csrf_token %}
+    <button type="submit" class="btn-c-ghost btn">Share</button>
+  </form>
+
+  <form method="post" action="/song/{{ song.id }}/delete/"
+        onsubmit="return confirm('Delete \'{{ song.title }}\'?')">
+    {% csrf_token %}
+    <button type="submit"
+            style="background:rgba(248,113,113,.08);color:#f87171;border:1px solid rgba(248,113,113,.18);border-radius:10px;padding:9px 20px;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .15s"
+            onmouseover="this.style.background='rgba(248,113,113,.18)'"
+            onmouseout="this.style.background='rgba(248,113,113,.08)'">
+      Delete
+    </button>
+  </form>
+</div>
+
+<!-- Body -->
+<div class="c-content">
+  <div class="row g-4">
+    <div class="col-lg-7">
 
       {% if song.audio_file_path %}
-      <audio controls controlsList="nodownload" class="w-100 mb-4">
-        <source src="{{ song.audio_file_path }}" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
+      <div class="c-glass-card" style="padding:24px;margin-bottom:16px">
+        <div style="font-size:.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px">
+          Preview
+        </div>
+        <audio controls class="w-100" id="detail-audio"
+               style="accent-color:var(--accent1)" controlsList="nodownload">
+          <source src="{{ song.audio_file_path }}" type="audio/mpeg">
+        </audio>
+      </div>
       {% elif generation and generation.status == 'PROCESSING' %}
-      <div class="p-4 mb-4 rounded text-center" style="background:#1f2937">
-        <div class="spinner-border spinner-border-sm me-2" style="color:#7c3aed"></div>
-        <span class="text-secondary">Still generating...</span>
-        <div class="mt-2">
-          <a href="/song/{{ song.id }}/status/" class="btn btn-sm btn-outline-secondary">Check Status</a>
+      <div class="c-glass-card" style="padding:24px;margin-bottom:16px;text-align:center">
+        <div class="spinner-border spinner-border-sm me-2" style="color:var(--accent1)"></div>
+        <span style="color:var(--muted);font-size:.875rem">Still generating…</span>
+        <div style="margin-top:12px">
+          <a href="/song/{{ song.id }}/status/" class="btn-c-ghost btn" style="font-size:.8rem">Check Status</a>
         </div>
       </div>
       {% endif %}
 
       {% if song.prompt_text %}
-      <div class="p-3 rounded mb-4" style="background:#1f2937">
-        <p class="text-secondary small mb-1">Prompt</p>
-        <p class="mb-0">{{ song.prompt_text }}</p>
+      <div class="c-glass-card" style="padding:24px;margin-bottom:16px">
+        <div style="font-size:.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">
+          Prompt
+        </div>
+        <p style="line-height:1.75;margin:0;font-size:.9rem;color:rgba(255,255,255,.8)">{{ song.prompt_text }}</p>
       </div>
       {% endif %}
 
-      {% if generation and generation.task_id %}
-      <p class="text-secondary small mb-1">Task ID: <code style="color:#9ca3af">{{ generation.task_id }}</code></p>
-      {% endif %}
-      <p class="text-secondary small mb-4">Created: {{ song.created_at|date:"M d, Y H:i" }}</p>
+    </div>
 
-      <div class="d-flex gap-2 flex-wrap">
-        {% if song.audio_file_path %}
-        <a href="/song/{{ song.id }}/download/" class="btn btn-purple">Download</a>
-        {% endif %}
-        <form method="post" action="/song/{{ song.id }}/share/">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-outline-light">Share Link</button>
-        </form>
-        <form method="post" action="/song/{{ song.id }}/delete/"
-              onsubmit="return confirm('Delete \'{{ song.title }}\'?')">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-outline-danger">Delete</button>
-        </form>
-      </div>
-
-      {% if share_links %}
-      <div class="mt-4 pt-4" style="border-top:1px solid #1f2937">
-        <p class="text-secondary small mb-3">Share Links</p>
+    {% if share_links %}
+    <div class="col-lg-4">
+      <div class="c-glass-card" style="padding:24px">
+        <div style="font-size:.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px">
+          Share Links
+        </div>
         {% for link in share_links %}
-        <div class="d-flex align-items-center gap-2 mb-2">
-          <input type="text" class="form-control form-control-sm" value="{{ link.url }}" readonly id="link-{{ link.id }}">
-          <button class="btn btn-sm btn-outline-secondary flex-shrink-0"
-                  onclick="navigator.clipboard.writeText(document.getElementById('link-{{ link.id }}').value);this.textContent='Copied!'">
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <input type="text" class="form-control form-control-sm"
+                 value="{{ link.url }}" readonly id="lnk-{{ link.id }}"
+                 style="font-size:.78rem">
+          <button style="background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 12px;font-size:.75rem;font-weight:600;white-space:nowrap;cursor:pointer;transition:color .15s,border-color .15s"
+                  onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.2)'"
+                  onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'"
+                  onclick="navigator.clipboard.writeText(document.getElementById('lnk-{{ link.id }}').value);this.textContent='Copied!'">
             Copy
           </button>
         </div>
         {% endfor %}
       </div>
-      {% endif %}
-
     </div>
+    {% endif %}
   </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
+<script>
+const GRADS = [
+  ['#667eea','#764ba2'],['#f093fb','#f5576c'],['#4facfe','#00f2fe'],
+  ['#43e97b','#38f9d7'],['#fa709a','#fee140'],['#a18cd1','#fbc2eb'],
+  ['#fccb90','#d57eeb'],['#e0c3fc','#8ec5fc'],
+];
+const id = {{ song.id }};
+const [c1, c2] = GRADS[id % GRADS.length];
+const grad = `linear-gradient(135deg,${c1},${c2})`;
+
+document.getElementById('detail-art').style.background = grad;
+document.getElementById('detail-bg').style.background  = `radial-gradient(circle,${c1},${c2})`;
+
+function detailPlay() {
+  {% if song.audio_file_path %}
+  const art = `<div style="width:100%;height:100%;background:${grad};display:flex;align-items:center;justify-content:center;font-size:1.2rem">🎵</div>`;
+  playSong('{{ song.audio_file_path }}', '{{ song.title|escapejs }}',
+    '{{ song.get_genre_display|escapejs }} · {{ song.get_mood_display|escapejs }}', art);
+  {% endif %}
+}
+</script>
 {% endblock %}

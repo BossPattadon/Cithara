@@ -1,122 +1,133 @@
 {% extends 'music/base.html' %}
 {% block title %}{{ song.title }} – Generating – Cithara{% endblock %}
+
 {% block content %}
+<div class="c-page-top">
+  <h1 class="c-page-title">{{ song.title }}</h1>
+  <p class="c-page-sub">{{ song.get_genre_display }} · {{ song.get_mood_display }} · {{ song.occasion }}</p>
+</div>
 
-<div class="row justify-content-center">
-  <div class="col-md-7 col-lg-6 text-center">
-    <h2 class="fw-bold mb-1">{{ song.title }}</h2>
-    <p class="text-secondary mb-5">{{ song.get_genre_display }} &middot; {{ song.get_mood_display }} &middot; {{ song.occasion }}</p>
+<div class="c-content">
+  <div style="max-width:520px">
+    <div class="c-glass-card" style="padding:40px;text-align:center">
 
-    <div class="card p-5">
       {% if generation.status == 'COMPLETED' %}
-        <div style="font-size:3rem" class="mb-3">&#10003;</div>
-        <h4 class="mb-1" style="color:#34d399">Song Ready!</h4>
-        <p class="text-secondary mb-4">Your song has been generated successfully.</p>
+        <div style="width:72px;height:72px;background:linear-gradient(135deg,rgba(52,211,153,.2),rgba(52,211,153,.05));border:1px solid rgba(52,211,153,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.8rem">✓</div>
+        <h3 style="font-weight:900;font-size:1.4rem;margin-bottom:8px">Song Ready!</h3>
+        <p style="color:var(--muted);margin-bottom:28px">Your song has been generated successfully.</p>
         {% if song.audio_file_path %}
-        <audio controls class="w-100 mb-4">
+        <audio controls class="w-100 mb-5" style="accent-color:var(--accent1)">
           <source src="{{ song.audio_file_path }}" type="audio/mpeg">
         </audio>
         {% endif %}
-        <div class="d-flex justify-content-center gap-3">
-          <a href="/song/{{ song.id }}/" class="btn btn-purple px-4">View Song</a>
-          <a href="/library/" class="btn btn-outline-secondary px-4">Library</a>
+        <div style="display:flex;justify-content:center;gap:12px">
+          <a href="/song/{{ song.id }}/" class="btn-c btn">View Song</a>
+          <a href="/library/" class="btn-c-ghost btn">My Library</a>
         </div>
 
       {% elif generation.status == 'FAILED' %}
-        <div style="font-size:3rem" class="mb-3">&#10007;</div>
-        <h4 class="mb-1" style="color:#f87171">Generation Failed</h4>
-        <p class="text-secondary mb-4">Something went wrong. Please try again.</p>
-        <div class="d-flex justify-content-center gap-3">
-          <a href="/create/" class="btn btn-purple px-4">Try Again</a>
-          <a href="/library/" class="btn btn-outline-secondary px-4">Library</a>
+        <div style="width:72px;height:72px;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.8rem">✗</div>
+        <h3 style="font-weight:900;font-size:1.4rem;margin-bottom:8px">Generation Failed</h3>
+        <p style="color:var(--muted);margin-bottom:28px">Something went wrong. Please try again.</p>
+        <div style="display:flex;justify-content:center;gap:12px">
+          <a href="/create/" class="btn-c btn">Try Again</a>
+          <a href="/library/" class="btn-c-ghost btn">My Library</a>
         </div>
 
       {% else %}
-        <div class="d-flex justify-content-center mb-4">
-          <div class="spinner-border" role="status" style="width:2.5rem;height:2.5rem;color:#7c3aed;"></div>
-        </div>
-        <h4 class="mb-1">Generating your song...</h4>
-        <p class="text-secondary mb-4">This usually takes 1–2 minutes.</p>
-
-        <div class="mb-2 d-flex justify-content-between">
-          <small id="step-label" class="text-secondary">Preparing...</small>
-          <small id="time-elapsed" class="text-secondary">0s</small>
-        </div>
-        <div class="rounded-pill mb-4" style="height:6px;background:#1f2937;overflow:hidden;">
-          <div id="progress-bar" class="rounded-pill"
-               style="height:100%;width:0%;background:linear-gradient(90deg,#7c3aed,#60a5fa);transition:width 1.2s ease;"></div>
+        <!-- Animated orb -->
+        <div id="orb-wrap" style="position:relative;width:100px;height:100px;margin:0 auto 28px">
+          <div id="orb" style="width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,var(--accent1),var(--accent2));opacity:.85;animation:orb-pulse 2.4s ease-in-out infinite;box-shadow:0 0 40px var(--glow)"></div>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem">🎵</div>
         </div>
 
-        <div class="d-flex justify-content-around mb-4">
-          <div class="text-center" id="step-1" style="opacity:.35;transition:opacity .5s">
-            <div style="font-size:1.5rem">🎤</div>
-            <small class="text-secondary">Lyrics</small>
+        <h3 style="font-weight:900;font-size:1.3rem;margin-bottom:8px">Generating your song…</h3>
+        <p style="color:var(--muted);margin-bottom:28px;font-size:.875rem">This usually takes 1–2 minutes.</p>
+
+        <!-- Progress bar -->
+        <div style="display:flex;justify-content:space-between;margin-bottom:7px">
+          <span id="step-label" style="font-size:.75rem;color:var(--muted)">Preparing…</span>
+          <span id="time-el"    style="font-size:.75rem;color:var(--muted)">0s</span>
+        </div>
+        <div style="height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-bottom:28px">
+          <div id="prog" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent1),var(--accent2));transition:width 1.2s ease"></div>
+        </div>
+
+        <!-- Steps -->
+        <div style="display:flex;justify-content:space-around">
+          <div id="step-1" style="opacity:.25;transition:opacity .6s;text-align:center">
+            <div style="font-size:1.4rem;margin-bottom:4px">🎤</div>
+            <div style="font-size:.72rem;color:var(--muted)">Lyrics</div>
           </div>
-          <div class="text-center" id="step-2" style="opacity:.35;transition:opacity .5s">
-            <div style="font-size:1.5rem">🎵</div>
-            <small class="text-secondary">Music</small>
+          <div id="step-2" style="opacity:.25;transition:opacity .6s;text-align:center">
+            <div style="font-size:1.4rem;margin-bottom:4px">🎵</div>
+            <div style="font-size:.72rem;color:var(--muted)">Music</div>
           </div>
-          <div class="text-center" id="step-3" style="opacity:.35;transition:opacity .5s">
-            <div style="font-size:1.5rem">✨</div>
-            <small class="text-secondary">Finishing</small>
+          <div id="step-3" style="opacity:.25;transition:opacity .6s;text-align:center">
+            <div style="font-size:1.4rem;margin-bottom:4px">✨</div>
+            <div style="font-size:.72rem;color:var(--muted)">Finishing</div>
           </div>
         </div>
 
         {% if generation.task_id %}
-        <p class="text-secondary small mb-0">Task ID: <code style="color:#9ca3af">{{ generation.task_id }}</code></p>
+        <p style="font-size:.7rem;color:rgba(255,255,255,.2);margin-top:24px;margin-bottom:0">
+          {{ generation.task_id }}
+        </p>
         {% endif %}
       {% endif %}
+
     </div>
   </div>
 </div>
 
+<style>
+@keyframes orb-pulse {
+  0%,100% { transform:scale(1);   opacity:.8; }
+  50%      { transform:scale(1.1); opacity:.55; }
+}
+</style>
 {% endblock %}
+
 {% block scripts %}
 {% if generation.status != 'COMPLETED' and generation.status != 'FAILED' %}
 <script>
-  const startTime = Date.now();
+  const start = Date.now();
   let prog = 0;
-
   const steps = [
-    { id: 'step-1', threshold: 5,  label: 'Writing lyrics...' },
-    { id: 'step-2', threshold: 35, label: 'Composing music...' },
-    { id: 'step-3', threshold: 72, label: 'Finalizing song...' },
+    {id:'step-1', thr:5,  label:'Writing lyrics…'},
+    {id:'step-2', thr:35, label:'Composing music…'},
+    {id:'step-3', thr:72, label:'Finalizing song…'},
   ];
-
-  function calcTarget(sec) {
-    if (sec < 15)  return sec / 15 * 20;
-    if (sec < 55)  return 20 + (sec - 15) / 40 * 45;
-    if (sec < 100) return 65 + (sec - 55) / 45 * 25;
-    return Math.min(90 + (sec - 100) / 60 * 5, 95);
+  function target(s) {
+    if (s<15)  return s/15*20;
+    if (s<55)  return 20+(s-15)/40*45;
+    if (s<100) return 65+(s-55)/45*25;
+    return Math.min(90+(s-100)/60*5, 95);
   }
-
-  function tick() {
-    const sec = (Date.now() - startTime) / 1000;
-    const target = calcTarget(sec);
-    if (target > prog) {
-      prog = target;
-      document.getElementById('progress-bar').style.width = prog + '%';
-      document.getElementById('time-elapsed').textContent = Math.floor(sec) + 's';
-
-      steps.forEach(s => {
-        if (prog >= s.threshold) {
-          document.getElementById(s.id).style.opacity = '1';
-          document.getElementById('step-label').textContent = s.label;
+  setInterval(() => {
+    const s = (Date.now()-start)/1000;
+    const t = target(s);
+    if (t > prog) {
+      prog = t;
+      document.getElementById('prog').style.width = prog+'%';
+      document.getElementById('time-el').textContent = Math.floor(s)+'s';
+      steps.forEach(st => {
+        if (prog >= st.thr) {
+          document.getElementById(st.id).style.opacity = '1';
+          document.getElementById('step-label').textContent = st.label;
         }
       });
     }
-  }
-
-  setInterval(tick, 800);
+  }, 800);
 
   setInterval(() => {
     fetch('/song/{{ song.id }}/status/api/')
-      .then(r => r.json())
-      .then(data => {
-        if (data.status === 'COMPLETED' || data.status === 'FAILED') {
-          document.getElementById('progress-bar').style.width = '100%';
-          steps.forEach(s => document.getElementById(s.id).style.opacity = '1');
-          setTimeout(() => location.reload(), 600);
+      .then(r=>r.json())
+      .then(d=>{
+        if (d.status==='COMPLETED'||d.status==='FAILED') {
+          document.getElementById('prog').style.width='100%';
+          steps.forEach(st => document.getElementById(st.id).style.opacity='1');
+          setTimeout(()=>location.reload(), 700);
         }
       });
   }, 5000);

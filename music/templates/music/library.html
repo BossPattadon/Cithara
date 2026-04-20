@@ -1,81 +1,100 @@
 {% extends 'music/base.html' %}
 {% block title %}Library – Cithara{% endblock %}
-{% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h2 class="fw-bold mb-0">My Library</h2>
-  <a href="/create/" class="btn btn-purple">+ Create Song</a>
+{% block content %}
+<div class="c-page-top">
+  <h1 class="c-page-title">Library</h1>
+  <p class="c-page-sub">{{ songs|length }} song{{ songs|length|pluralize }}</p>
 </div>
 
-{% if songs %}
-<div class="row g-4">
-  {% for song in songs %}
-  <div class="col-md-6 col-lg-4">
-    <div class="card p-4 h-100 d-flex flex-column">
-      <div class="d-flex justify-content-between align-items-start mb-2">
-        <h5 class="mb-0 me-2" style="line-height:1.3">{{ song.title }}</h5>
-        {% with gen=song.songgeneration %}
-          {% if gen %}
-            {% if gen.status == 'COMPLETED' %}
-            <span class="badge rounded-pill badge-status-completed flex-shrink-0">Done</span>
-            {% elif gen.status == 'FAILED' %}
-            <span class="badge rounded-pill badge-status-failed flex-shrink-0">Failed</span>
-            {% elif gen.status == 'PROCESSING' %}
-            <span class="badge rounded-pill badge-status-processing flex-shrink-0">Processing</span>
-            {% else %}
-            <span class="badge rounded-pill badge-status-pending flex-shrink-0">Pending</span>
-            {% endif %}
-          {% endif %}
-        {% endwith %}
+<div class="c-content">
+  {% if songs %}
+
+  <div class="chip-row">
+    <button class="chip active" data-filter="all">All</button>
+    <button class="chip" data-filter="COMPLETED">Ready</button>
+    <button class="chip" data-filter="PROCESSING">Processing</button>
+    <button class="chip" data-filter="FAILED">Failed</button>
+  </div>
+
+  <div class="c-song-grid" id="song-grid">
+    {% for song in songs %}
+    {% with gen=song.songgeneration %}
+    <div class="c-song-card"
+         data-status="{% if gen %}{{ gen.status }}{% else %}PENDING{% endif %}"
+         onclick="window.location='/song/{{ song.id }}/'">
+
+      <div class="c-song-art" data-idx="{{ forloop.counter0 }}">
+        <button class="c-play-pill"
+                onclick="event.stopPropagation(); doPlay(this)"
+                data-url="{{ song.audio_file_path }}"
+                data-title="{{ song.title }}"
+                data-sub="{{ song.get_genre_display }} · {{ song.get_mood_display }}"
+                data-idx="{{ forloop.counter0 }}"
+                {% if not song.audio_file_path %}disabled{% endif %}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Play
+        </button>
       </div>
 
-      <p class="text-secondary small mb-1">{{ song.get_genre_display }} &middot; {{ song.get_mood_display }}</p>
-      <p class="text-secondary small mb-3">{{ song.occasion }}</p>
-
-      {% if song.audio_file_path %}
-      <audio controls controlsList="nodownload" class="w-100 mb-3" style="height:36px">
-        <source src="{{ song.audio_file_path }}" type="audio/mpeg">
-      </audio>
-      {% endif %}
-
-      <p class="text-secondary small mb-3 mt-auto">{{ song.created_at|date:"M d, Y H:i" }}</p>
-
-      <div class="d-flex gap-2">
-        <a href="/song/{{ song.id }}/" class="btn btn-sm btn-outline-light flex-grow-1">View</a>
-        {% with gen=song.songgeneration %}
-          {% if gen and gen.status == 'PROCESSING' %}
-          <a href="/song/{{ song.id }}/status/" class="btn btn-sm btn-outline-secondary">Status</a>
+      <div class="c-card-title">{{ song.title }}</div>
+      <div class="c-card-sub">{{ song.get_genre_display }} · {{ song.get_mood_display }}</div>
+      <div style="margin-top:5px">
+        {% if gen %}
+          {% if gen.status == 'COMPLETED' %}<span class="sb sb-done">Done</span>
+          {% elif gen.status == 'FAILED' %}<span class="sb sb-fail">Failed</span>
+          {% elif gen.status == 'PROCESSING' %}<span class="sb sb-proc">Processing</span>
+          {% else %}<span class="sb sb-pend">Pending</span>
           {% endif %}
-        {% endwith %}
-        <form method="post" action="/song/{{ song.id }}/delete/"
-              onsubmit="return confirm('Delete \'{{ song.title }}\'?')">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-        </form>
+        {% endif %}
       </div>
     </div>
+    {% endwith %}
+    {% endfor %}
   </div>
-  {% endfor %}
-</div>
 
-{% else %}
-<div class="text-center py-5">
-  <div style="font-size:4rem" class="mb-3">&#127925;</div>
-  <h4 class="text-secondary mb-2">Your library is empty</h4>
-  <p class="text-secondary">Create your first AI-generated song to get started.</p>
-  <a href="/create/" class="btn btn-purple mt-2 px-4">Create Song</a>
+  {% else %}
+  <div style="text-align:center;padding:100px 0">
+    <div style="font-size:4rem;margin-bottom:20px;opacity:.6">🎵</div>
+    <h3 style="font-weight:800;font-size:1.4rem;margin-bottom:10px">Your library is empty</h3>
+    <p style="color:var(--muted);margin-bottom:28px">Create your first AI-generated song to get started.</p>
+    <a href="/create/" class="btn-c btn">Create a Song</a>
+  </div>
+  {% endif %}
 </div>
-{% endif %}
-
 {% endblock %}
+
 {% block scripts %}
 <script>
-  document.querySelectorAll('audio').forEach(audio => {
-    audio.addEventListener('play', () => {
-      document.querySelectorAll('audio').forEach(other => {
-        if (other !== audio) other.pause();
-      });
+const GRADS = [
+  ['#667eea','#764ba2'],['#f093fb','#f5576c'],['#4facfe','#00f2fe'],
+  ['#43e97b','#38f9d7'],['#fa709a','#fee140'],['#a18cd1','#fbc2eb'],
+  ['#fccb90','#d57eeb'],['#e0c3fc','#8ec5fc'],['#f7971e','#ffd200'],
+  ['#00b09b','#96c93d'],
+];
+function g(idx) {
+  const [a,b] = GRADS[idx % GRADS.length];
+  return `linear-gradient(135deg,${a},${b})`;
+}
+
+document.querySelectorAll('.c-song-art[data-idx]').forEach(el => {
+  el.style.background = g(+el.dataset.idx);
+});
+
+function doPlay(btn) {
+  const art = `<div style="width:100%;height:100%;background:${g(+btn.dataset.idx)};display:flex;align-items:center;justify-content:center;font-size:1.2rem">🎵</div>`;
+  playSong(btn.dataset.url, btn.dataset.title, btn.dataset.sub, art);
+}
+
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    const f = chip.dataset.filter;
+    document.querySelectorAll('.c-song-card').forEach(card => {
+      card.style.display = (f === 'all' || card.dataset.status === f) ? '' : 'none';
     });
   });
+});
 </script>
 {% endblock %}
