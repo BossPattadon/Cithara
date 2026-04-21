@@ -46,12 +46,104 @@ Starts the local development server.
 ```
 python manage.py runserver
 ```
+
+Open the app at: http://127.0.0.1:8000/
+
 ## Access Django Admin
 Open this URL in your browser: http://127.0.0.1:8000/admin
 
-## Song Generation (Exercise 4 – Strategy Pattern)
+## Google OAuth Setup (Sign In with Google)
 
-### Setup environment variables
+Cithara uses Google OAuth for authentication. Follow these steps before running the app.
+
+### 1. Create Google OAuth credentials
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/) and create or select a project.
+2. Navigate to **APIs & Services → Credentials → Create Credentials → OAuth client ID**.
+3. Set Application type to **Web application**.
+4. Under **Authorized redirect URIs**, add:
+   ```
+   http://127.0.0.1:8000/accounts/google/callback/
+   ```
+5. Copy the **Client ID** and **Client Secret**.
+
+### 2. Add credentials to `.env`
+
+Add these lines to your `.env` file (see [Setup environment variables](#setup-environment-variables) below):
+```
+GOOGLE_CLIENT_ID=your-client-id-here
+GOOGLE_CLIENT_SECRET=your-client-secret-here
+```
+
+### 3. Configure the Django Site object
+
+After running migrations and starting the server, open Django Admin:
+
+1. Go to http://127.0.0.1:8000/admin and log in with your superuser account.
+2. Navigate to **Sites → Sites** and click the existing site (usually "example.com").
+3. Set:
+   - **Domain name**: `127.0.0.1:8000`
+   - **Display name**: `Cithara`
+4. Save.
+
+### 4. Add the Google Social Application
+
+Still in Django Admin:
+
+1. Go to **Social Accounts → Social applications → Add social application**.
+2. Fill in:
+   - **Provider**: Google
+   - **Name**: Google
+   - **Client id**: *(your Google Client ID)*
+   - **Secret key**: *(your Google Client Secret)*
+3. Move `127.0.0.1:8000` from **Available sites** to **Chosen sites**.
+4. Save.
+
+Now "Continue with Google" on the login page will work.
+
+---
+
+## ngrok Setup (OAuth Testing on Public URL)
+
+If you need to test Google OAuth via a public HTTPS URL (e.g., on a different device or when `localhost` is not accepted), use ngrok.
+
+### 1. Install ngrok
+
+Download from [ngrok.com/download](https://ngrok.com/download) and add it to your PATH
+
+### 2. Start ngrok tunnel
+
+With your Django server already running on port 8000:
+```
+ngrok http 8000
+```
+
+Copy the `https://` forwarding URL shown (e.g. `https://abc123.ngrok-free.dev`).
+
+### 3. Add the ngrok URL to Google Cloud Console
+
+In [Google Cloud Console](https://console.cloud.google.com/) → **APIs & Services → Credentials** → your OAuth client:
+
+Add a new **Authorized redirect URI**:
+```
+https://<your-ngrok-subdomain>.ngrok-free.dev/accounts/google/callback/
+```
+
+### 4. Update the Django Site object
+
+In Django Admin → **Sites → Sites**, update the existing site:
+- **Domain name**: `<your-ngrok-subdomain>.ngrok-free.dev`
+- **Display name**: `Cithara`
+
+Now open `https://<your-ngrok-subdomain>.ngrok-free.app/` in your browser and Google OAuth will work correctly.
+
+
+
+---
+
+## Song Generation
+
+### Setup environment variables <a name="setup-environment-variables"></a>
 
 Copy `.env.example` to `.env` and edit the values:
 ```
@@ -63,8 +155,6 @@ cp .env.example .env
 GENERATOR_STRATEGY=mock   # mock | suno
 SUNO_API_KEY=your_suno_api_key_here
 ```
-
-> **Never commit `.env` to version control.** It is already listed in `.gitignore`.
 
 ---
 
@@ -80,13 +170,12 @@ Expected output:
 Strategy: MockSongGeneratorStrategy
 
 [Mock] Generating song: 'Demo Song' | genre=POP mood=HAPPY
-Task ID : mock-a1b2c3d4
+Task ID : mock-58639109
 Status  : SUCCESS
 Audio   : https://example.com/mock-audio.mp3
 
-[Mock] Checking status for task: mock-a1b2c3d4
-Status check → SUCCESS
-Audio URL    → https://example.com/mock-audio.mp3
+Status check : SUCCESS
+Audio URL    : https://example.com/mock-audio.mp3
 ```
 
 ---
@@ -111,29 +200,21 @@ Strategy: SunoSongGeneratorStrategy
 [Suno] Task created: abc123-task-id
 Task ID : abc123-task-id
 Status  : PENDING
+```
+
+4. Check status of an existing task (Suno generation is async — use the Task ID from the previous run):
+   ```
+   python manage.py demo_generation --task-id abc123-task-id
+   ```
+
+Expected output:
+```
+Strategy: SunoSongGeneratorStrategy
 
 [Suno] Task abc123-task-id status: SUCCESS
-Status check → SUCCESS
-Audio URL    → https://cdn.sunoapi.org/...mp3
+Task ID : abc123-task-id
+Status  : SUCCESS
+Audio   : https://tempfile.aiquickdraw.com/r/<file-id>.mp3
 ```
 
 ---
-
-## CRUD Demonstration
-
-### 1. Create
-![Create](CRUD_screenshots/CreateSong.png)
-
-### 2. Read
-![Read](CRUD_screenshots/ListSong.png)
-
-### 3. Update
-
-![Update](CRUD_screenshots/UpdateSong.png)
-
-![Update](CRUD_screenshots/UpdatedHistory.png)
-
-### 4. Delete
-![Delete](CRUD_screenshots/DeleteSong.png)
-
-![Delete](CRUD_screenshots/DeletedSuccess.png)
