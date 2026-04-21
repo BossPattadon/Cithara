@@ -135,7 +135,7 @@ In Django Admin → **Sites → Sites**, update the existing site:
 - **Domain name**: `<your-ngrok-subdomain>.ngrok-free.dev`
 - **Display name**: `Cithara`
 
-Now open `https://<your-ngrok-subdomain>.ngrok-free.app/` in your browser and Google OAuth will work correctly.
+Now open `https://<your-ngrok-subdomain>.ngrok-free.dev/` in your browser and Google OAuth will work correctly.
 
 
 
@@ -154,6 +154,9 @@ cp .env.example .env
 ```
 GENERATOR_STRATEGY=mock   # mock | suno
 SUNO_API_KEY=your_suno_api_key_here
+
+GOOGLE_CLIENT_ID=your-client-id-here
+GOOGLE_CLIENT_SECRET=your-client-secret-here
 ```
 
 ---
