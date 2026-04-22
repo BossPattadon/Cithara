@@ -129,7 +129,9 @@ Download from [ngrok.com/download](https://ngrok.com/download) and add it to you
 
 ### 2. Add your ngrok auth token
 
-Sign up at [ngrok.com](https://ngrok.com) and copy your auth token from the dashboard, then run:
+1. Sign up or log in at [ngrok.com](https://ngrok.com)
+2. Go to **Your Authtoken** at [dashboard.ngrok.com/get-started/your-authtoken](https://dashboard.ngrok.com/get-started/your-authtoken)
+3. Copy the token and run:
 ```
 ngrok config add-authtoken <your-auth-token>
 ```
