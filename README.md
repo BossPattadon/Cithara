@@ -30,6 +30,22 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+## Setup Environment Variables <a name="setup-environment-variables"></a>
+
+Copy `.env.example` to `.env` and edit the values:
+```
+cp .env.example .env
+```
+
+`.env` file:
+```
+GENERATOR_STRATEGY=mock   # mock | suno
+SUNO_API_KEY=your_suno_api_key_here
+
+GOOGLE_CLIENT_ID=your-client-id-here
+GOOGLE_CLIENT_SECRET=your-client-secret-here
+```
+
 ## How to run
 ### Apply database migrations
 Creates database tables based on the defined models.
@@ -69,7 +85,7 @@ Cithara uses Google OAuth for authentication. Follow these steps before running 
 
 ### 2. Add credentials to `.env`
 
-Add these lines to your `.env` file (see [Setup environment variables](#setup-environment-variables) below):
+Add these lines to your `.env` file (see [Setup Environment Variables](#setup-environment-variables) above):
 ```
 GOOGLE_CLIENT_ID=your-client-id-here
 GOOGLE_CLIENT_SECRET=your-client-secret-here
@@ -149,24 +165,6 @@ Now open `https://<your-ngrok-subdomain>.ngrok-free.dev/` in your browser and Go
 ---
 
 ## Song Generation
-
-### Setup environment variables <a name="setup-environment-variables"></a>
-
-Copy `.env.example` to `.env` and edit the values:
-```
-cp .env.example .env
-```
-
-`.env` file:
-```
-GENERATOR_STRATEGY=mock   # mock | suno
-SUNO_API_KEY=your_suno_api_key_here
-
-GOOGLE_CLIENT_ID=your-client-id-here
-GOOGLE_CLIENT_SECRET=your-client-secret-here
-```
-
----
 
 ### Run in Mock mode (offline, no API key needed)
 
