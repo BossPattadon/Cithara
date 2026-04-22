@@ -63,7 +63,7 @@ Cithara uses Google OAuth for authentication. Follow these steps before running 
 3. Set Application type to **Web application**.
 4. Under **Authorized redirect URIs**, add:
    ```
-   http://127.0.0.1:8000/accounts/google/callback/
+   http://127.0.0.1:8000/accounts/google/login/callback/
    ```
 5. Copy the **Client ID** and **Client Secret**.
 
@@ -111,7 +111,14 @@ If you need to test Google OAuth via a public HTTPS URL (e.g., on a different de
 
 Download from [ngrok.com/download](https://ngrok.com/download) and add it to your PATH
 
-### 2. Start ngrok tunnel
+### 2. Add your ngrok auth token
+
+Sign up at [ngrok.com](https://ngrok.com) and copy your auth token from the dashboard, then run:
+```
+ngrok config add-authtoken <your-auth-token>
+```
+
+### 3. Start ngrok tunnel
 
 With your Django server already running on port 8000:
 ```
@@ -120,16 +127,16 @@ ngrok http 8000
 
 Copy the `https://` forwarding URL shown (e.g. `https://abc123.ngrok-free.dev`).
 
-### 3. Add the ngrok URL to Google Cloud Console
+### 4. Add the ngrok URL to Google Cloud Console
 
 In [Google Cloud Console](https://console.cloud.google.com/) → **APIs & Services → Credentials** → your OAuth client:
 
 Add a new **Authorized redirect URI**:
 ```
-https://<your-ngrok-subdomain>.ngrok-free.dev/accounts/google/callback/
+https://<your-ngrok-subdomain>.ngrok-free.dev/accounts/google/login/callback/
 ```
 
-### 4. Update the Django Site object
+### 5. Update the Django Site object
 
 In Django Admin → **Sites → Sites**, update the existing site:
 - **Domain name**: `<your-ngrok-subdomain>.ngrok-free.dev`
