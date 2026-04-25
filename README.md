@@ -6,55 +6,74 @@ A Django AI-generated song web application
   <img src="DomainModelDiagram.png" width="600">
 </p>
 
-## Setup Virtual Environment
-### Create virtual environment
+## Setup
+
+### 1. Create virtual environment
 #### macOS / Linux
 ```
 python3 -m venv venv
 ```
-#### Window
+#### Windows
 ```
 python -m venv venv
 ```
-### Activate virtual environment
+
+### 2. Activate virtual environment
 #### macOS / Linux
 ```
 source venv/bin/activate
 ```
-#### Window
+#### Windows
 ```
 venv\Scripts\activate
 ```
-### Install dependencies
+
+### 3. Install dependencies
 ```
 pip install -r requirements.txt
 ```
 
-## How to run
-### Apply database migrations
-Creates database tables based on the defined models.
+### 4. Set up environment variables
+
+Copy `.env.example` to `.env` and fill in your values:
+```
+cp .env.example .env
+```
+
+`.env` file:
+```
+GENERATOR_STRATEGY=mock   # mock | suno
+SUNO_API_KEY=your_suno_api_key_here
+
+GOOGLE_CLIENT_ID=your-client-id-here
+GOOGLE_CLIENT_SECRET=your-client-secret-here
+```
+
+> **Never commit `.env` to version control.** It is already listed in `.gitignore`.
+
+### 5. Apply database migrations
 ```
 python manage.py migrate
 ```
-### Create Superuser
+
+### 6. Create superuser
 Creates an admin account for accessing Django Admin.
 ```
 python manage.py createsuperuser
 ```
-### Run development server
-Starts the local development server.
+
+### 7. Run development server
 ```
 python manage.py runserver
 ```
 
 Open the app at: http://127.0.0.1:8000/
 
-## Access Django Admin
-Open this URL in your browser: http://127.0.0.1:8000/admin
+---
 
 ## Google OAuth Setup (Sign In with Google)
 
-Cithara uses Google OAuth for authentication. Follow these steps before running the app.
+Cithara uses Google OAuth for authentication. Complete this setup after the server is running.
 
 ### 1. Create Google OAuth credentials
 
@@ -65,19 +84,9 @@ Cithara uses Google OAuth for authentication. Follow these steps before running 
    ```
    http://127.0.0.1:8000/accounts/google/callback/
    ```
-5. Copy the **Client ID** and **Client Secret**.
+5. Copy the **Client ID** and **Client Secret** into your `.env` file.
 
-### 2. Add credentials to `.env`
-
-Add these lines to your `.env` file (see [Setup environment variables](#setup-environment-variables) below):
-```
-GOOGLE_CLIENT_ID=your-client-id-here
-GOOGLE_CLIENT_SECRET=your-client-secret-here
-```
-
-### 3. Configure the Django Site object
-
-After running migrations and starting the server, open Django Admin:
+### 2. Configure the Django Site object
 
 1. Go to http://127.0.0.1:8000/admin and log in with your superuser account.
 2. Navigate to **Sites → Sites** and click the existing site (usually "example.com").
@@ -86,7 +95,7 @@ After running migrations and starting the server, open Django Admin:
    - **Display name**: `Cithara`
 4. Save.
 
-### 4. Add the Google Social Application
+### 3. Add the Google Social Application
 
 Still in Django Admin:
 
@@ -109,7 +118,7 @@ If you need to test Google OAuth via a public HTTPS URL (e.g., on a different de
 
 ### 1. Install ngrok
 
-Download from [ngrok.com/download](https://ngrok.com/download) and add it to your PATH
+Download from [ngrok.com/download](https://ngrok.com/download) and add it to your PATH.
 
 ### 2. Start ngrok tunnel
 
@@ -137,29 +146,11 @@ In Django Admin → **Sites → Sites**, update the existing site:
 
 Now open `https://<your-ngrok-subdomain>.ngrok-free.dev/` in your browser and Google OAuth will work correctly.
 
-
-
----
-
-## Song Generation
-
-### Setup environment variables <a name="setup-environment-variables"></a>
-
-Copy `.env.example` to `.env` and edit the values:
-```
-cp .env.example .env
-```
-
-`.env` file:
-```
-GENERATOR_STRATEGY=mock   # mock | suno
-SUNO_API_KEY=your_suno_api_key_here
-
-GOOGLE_CLIENT_ID=your-client-id-here
-GOOGLE_CLIENT_SECRET=your-client-secret-here
-```
+> **Note:** ngrok free-tier URLs change every time you restart ngrok. Repeat steps 2–4 each session.
 
 ---
+
+## Song Generation (Exercise 4 – Strategy Pattern)
 
 ### Run in Mock mode (offline, no API key needed)
 

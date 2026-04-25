@@ -91,7 +91,11 @@
 {% block scripts %}
 {% if generation.status != 'COMPLETED' and generation.status != 'FAILED' %}
 <script>
-  const start = Date.now();
+  // Persist start time across page navigations so the bar never resets
+  const _key = 'cithara-start-{{ song.id }}';
+  let start = parseInt(localStorage.getItem(_key) || '0');
+  if (!start) { start = Date.now(); localStorage.setItem(_key, start); }
+
   let prog = 0;
   const steps = [
     {id:'step-1', thr:5,  label:'Writing lyrics…'},
@@ -106,11 +110,12 @@
   }
   setInterval(() => {
     const s = (Date.now()-start)/1000;
+    // Always update the timer display, even after progress plateaus at 95%
+    document.getElementById('time-el').textContent = Math.floor(s)+'s';
     const t = target(s);
     if (t > prog) {
       prog = t;
       document.getElementById('prog').style.width = prog+'%';
-      document.getElementById('time-el').textContent = Math.floor(s)+'s';
       steps.forEach(st => {
         if (prog >= st.thr) {
           document.getElementById(st.id).style.opacity = '1';
@@ -125,6 +130,7 @@
       .then(r=>r.json())
       .then(d=>{
         if (d.status==='COMPLETED'||d.status==='FAILED') {
+          localStorage.removeItem(_key);
           document.getElementById('prog').style.width='100%';
           steps.forEach(st => document.getElementById(st.id).style.opacity='1');
           setTimeout(()=>location.reload(), 700);

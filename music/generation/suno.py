@@ -17,6 +17,8 @@ class SunoSongGeneratorStrategy(SongGeneratorStrategy):
         prompt = request.prompt_text or (
             f"A {request.mood.lower()} {request.genre.lower()} song for {request.occasion}"
         )
+        # Suno API rejects prompts longer than 500 characters
+        prompt = prompt[:500]
         payload = {
             "prompt": prompt,
             "title": request.title,
