@@ -6,6 +6,144 @@ A Django AI-generated song web application
   <img src="DomainModelDiagram.png" width="600">
 </p>
 
+## Class Diagram
+
+```mermaid
+classDiagram
+    %% ── Model Layer ──────────────────────────────────────────────────────────
+    class User {
+        <<Model>>
+        +name : CharField
+        +email : EmailField
+        +__str__() str
+    }
+
+    class SongCreator {
+        <<Model>>
+    }
+
+    class Listener {
+        <<Model>>
+    }
+
+    class Library {
+        <<Model>>
+        +owner : SongCreator
+    }
+
+    class Song {
+        <<Model>>
+        +title : CharField
+        +genre : CharField
+        +mood : CharField
+        +occasion : CharField
+        +prompt_text : TextField
+        +audio_file_path : CharField
+        +share_token : UUIDField
+        +created_at : DateTimeField
+        +creator : SongCreator
+        +library : Library
+        +__str__() str
+    }
+
+    class ShareLink {
+        <<Model>>
+        +url : URLField
+        +created_at : DateTimeField
+        +song : Song
+    }
+
+    class SongGeneration {
+        <<Model>>
+        +status : CharField
+        +task_id : CharField
+        +requested_at : DateTimeField
+        +song : Song
+    }
+
+    %% ── View Layer ───────────────────────────────────────────────────────────
+    class Views {
+        <<View>>
+        +index(request) TemplateResponse
+        +create_song(request) TemplateResponse
+        +generate_song(request) HttpResponse
+        +song_status(request, song_id) TemplateResponse
+        +library(request) TemplateResponse
+        +song_detail(request, song_id) TemplateResponse
+        +delete_song(request, song_id) HttpResponse
+        +download_song(request, song_id) StreamingHttpResponse
+        +shared_song(request, token) TemplateResponse
+        +check_status_api(request, song_id) JsonResponse
+    }
+
+    %% ── Template Layer ───────────────────────────────────────────────────────
+    class Templates {
+        <<Template>>
+        base.html
+        index.html
+        create.html
+        status.html
+        library.html
+        detail.html
+        login.html
+    }
+
+    %% ── Strategy Pattern ─────────────────────────────────────────────────────
+    class SongGeneratorStrategy {
+        <<abstract>>
+        +generate(request) GenerationResult*
+        +get_status(task_id) GenerationResult*
+    }
+
+    class MockSongGeneratorStrategy {
+        +generate(request) GenerationResult
+        +get_status(task_id) GenerationResult
+    }
+
+    class SunoSongGeneratorStrategy {
+        -api_key : str
+        +generate(request) GenerationResult
+        +get_status(task_id) GenerationResult
+    }
+
+    class GenerationRequest {
+        <<dataclass>>
+        +title : str
+        +genre : str
+        +mood : str
+        +occasion : str
+        +prompt_text : str
+    }
+
+    class GenerationResult {
+        <<dataclass>>
+        +task_id : str
+        +status : str
+        +audio_url : str
+    }
+
+    %% ── Model Relationships ──────────────────────────────────────────────────
+    User <|-- SongCreator : inherits
+    User <|-- Listener : inherits
+    SongCreator "1" --> "1" Library : owns
+    SongCreator "1" --> "0..*" Song : creates
+    Library "1" --> "0..*" Song : contains
+    Song "1" --> "1" SongGeneration : has
+    Song "1" --> "0..*" ShareLink : has
+
+    %% ── MVT Relationships ────────────────────────────────────────────────────
+    Views --> Song : uses
+    Views --> SongGeneration : uses
+    Views --> SongGeneratorStrategy : uses
+    Views ..> Templates : renders
+
+    %% ── Strategy Relationships ───────────────────────────────────────────────
+    SongGeneratorStrategy <|-- MockSongGeneratorStrategy : implements
+    SongGeneratorStrategy <|-- SunoSongGeneratorStrategy : implements
+    SongGeneratorStrategy ..> GenerationRequest : accepts
+    SongGeneratorStrategy ..> GenerationResult : returns
+```
+
 ## Setup
 
 ### 1. Create virtual environment
