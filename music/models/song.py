@@ -1,7 +1,8 @@
 import uuid
 from django.db import models
-from .user import SongCreator
+from .song_creator import SongCreator
 from .library import Library
+
 
 class Song(models.Model):
     GENRE_CHOICES = [
@@ -35,9 +36,3 @@ class Song(models.Model):
 
     def __str__(self):
         return self.title
-
-class ShareLink(models.Model):
-    url = models.URLField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    song = models.ForeignKey(Song, on_delete=models.CASCADE)
