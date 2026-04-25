@@ -82,11 +82,13 @@ Cithara uses Google OAuth for authentication. Complete this setup after the serv
 3. Set Application type to **Web application**.
 4. Under **Authorized redirect URIs**, add:
    ```
-   http://127.0.0.1:8000/accounts/google/callback/
+   http://127.0.0.1:8000/accounts/google/login/callback/
    ```
 5. Copy the **Client ID** and **Client Secret** into your `.env` file.
 
 ### 2. Configure the Django Site object
+
+After running migrations and starting the server, open Django Admin:
 
 1. Go to http://127.0.0.1:8000/admin and log in with your superuser account.
 2. Navigate to **Sites → Sites** and click the existing site (usually "example.com").
@@ -120,7 +122,16 @@ If you need to test Google OAuth via a public HTTPS URL (e.g., on a different de
 
 Download from [ngrok.com/download](https://ngrok.com/download) and add it to your PATH.
 
-### 2. Start ngrok tunnel
+### 2. Add your ngrok auth token
+
+1. Sign up or log in at [ngrok.com](https://ngrok.com)
+2. Go to **Your Authtoken** at [dashboard.ngrok.com/get-started/your-authtoken](https://dashboard.ngrok.com/get-started/your-authtoken)
+3. Copy the token and run:
+```
+ngrok config add-authtoken <your-auth-token>
+```
+
+### 3. Start ngrok tunnel
 
 With your Django server already running on port 8000:
 ```
@@ -129,16 +140,16 @@ ngrok http 8000
 
 Copy the `https://` forwarding URL shown (e.g. `https://abc123.ngrok-free.dev`).
 
-### 3. Add the ngrok URL to Google Cloud Console
+### 4. Add the ngrok URL to Google Cloud Console
 
 In [Google Cloud Console](https://console.cloud.google.com/) → **APIs & Services → Credentials** → your OAuth client:
 
 Add a new **Authorized redirect URI**:
 ```
-https://<your-ngrok-subdomain>.ngrok-free.dev/accounts/google/callback/
+https://<your-ngrok-subdomain>.ngrok-free.dev/accounts/google/login/callback/
 ```
 
-### 4. Update the Django Site object
+### 5. Update the Django Site object
 
 In Django Admin → **Sites → Sites**, update the existing site:
 - **Domain name**: `<your-ngrok-subdomain>.ngrok-free.dev`
@@ -146,7 +157,7 @@ In Django Admin → **Sites → Sites**, update the existing site:
 
 Now open `https://<your-ngrok-subdomain>.ngrok-free.dev/` in your browser and Google OAuth will work correctly.
 
-> **Note:** ngrok free-tier URLs change every time you restart ngrok. Repeat steps 2–4 each session.
+> **Note:** ngrok free-tier URLs change every time you restart ngrok. Repeat steps 3–5 each session.
 
 ---
 
@@ -212,3 +223,22 @@ Audio   : https://tempfile.aiquickdraw.com/r/<file-id>.mp3
 ```
 
 ---
+
+## CRUD Demonstration
+
+### 1. Create
+![Create](CRUD_screenshots/CreateSong.png)
+
+### 2. Read
+![Read](CRUD_screenshots/ListSong.png)
+
+### 3. Update
+
+![Update](CRUD_screenshots/UpdateSong.png)
+
+![Update](CRUD_screenshots/UpdatedHistory.png)
+
+### 4. Delete
+![Delete](CRUD_screenshots/DeleteSong.png)
+
+![Delete](CRUD_screenshots/DeletedSuccess.png)
