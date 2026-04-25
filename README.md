@@ -6,6 +6,63 @@ A Django AI-generated song web application
   <img src="DomainModelDiagram.png" width="600">
 </p>
 
+## Sequence Diagram – Song Generation Use Case
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Browser
+    participant Views
+    participant SongGeneratorStrategy
+    participant SunoAPI
+    participant DB
+
+    User->>Browser: Fill form and submit
+    Browser->>Views: POST /generate/
+
+    Views->>DB: Create Song (PENDING)
+    Views->>DB: Create SongGeneration (PENDING)
+    Views->>SongGeneratorStrategy: generate(GenerationRequest)
+
+    alt Suno mode
+        SongGeneratorStrategy->>SunoAPI: POST /generate (prompt, style, title)
+        SunoAPI-->>SongGeneratorStrategy: { taskId: "abc123" }
+        SongGeneratorStrategy-->>Views: GenerationResult(task_id, PENDING)
+        Views->>DB: Update SongGeneration → PROCESSING, task_id="abc123"
+    else Mock mode
+        SongGeneratorStrategy-->>Views: GenerationResult(task_id, SUCCESS, audio_url)
+        Views->>DB: Update SongGeneration → COMPLETED
+        Views->>DB: Update Song.audio_file_path
+    end
+
+    Views-->>Browser: Redirect to /song/{id}/status/
+    Browser->>Views: GET /song/{id}/status/
+    Views->>SunoAPI: get_status(task_id)
+    SunoAPI-->>Views: { status: PENDING }
+    Views-->>Browser: Render status.html (PROCESSING)
+
+    loop Poll every 5 seconds
+        Browser->>Views: GET /song/{id}/status/api/
+        Views->>SunoAPI: get_status(task_id)
+        SunoAPI-->>Views: { status, audio_url }
+
+        alt status == SUCCESS
+            Views->>DB: Update SongGeneration → COMPLETED
+            Views->>DB: Update Song.audio_file_path
+            Views-->>Browser: { status: COMPLETED }
+            Browser->>Browser: location.reload()
+            Browser->>Views: GET /song/{id}/status/
+            Views-->>Browser: Render status.html (COMPLETED)
+        else status == FAILED / ERROR
+            Views->>DB: Update SongGeneration → FAILED
+            Views-->>Browser: { status: FAILED }
+            Browser->>Browser: location.reload()
+        else still PENDING / PROCESSING
+            Views-->>Browser: { status: PROCESSING }
+        end
+    end
+```
+
 ## Class Diagram
 
 ```mermaid
