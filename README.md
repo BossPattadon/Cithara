@@ -10,6 +10,8 @@ A Django AI-generated song web application
 
 ```mermaid
 classDiagram
+    direction LR
+
     %% ── Model Layer ──────────────────────────────────────────────────────────
     class User {
         <<Model>>
@@ -17,20 +19,16 @@ classDiagram
         +email : EmailField
         +__str__() str
     }
-
     class SongCreator {
         <<Model>>
     }
-
     class Listener {
         <<Model>>
     }
-
     class Library {
         <<Model>>
         +owner : SongCreator
     }
-
     class Song {
         <<Model>>
         +title : CharField
@@ -41,39 +39,33 @@ classDiagram
         +audio_file_path : CharField
         +share_token : UUIDField
         +created_at : DateTimeField
-        +creator : SongCreator
-        +library : Library
         +__str__() str
     }
-
-    class ShareLink {
-        <<Model>>
-        +url : URLField
-        +created_at : DateTimeField
-        +song : Song
-    }
-
     class SongGeneration {
         <<Model>>
         +status : CharField
         +task_id : CharField
         +requested_at : DateTimeField
-        +song : Song
+    }
+    class ShareLink {
+        <<Model>>
+        +url : URLField
+        +created_at : DateTimeField
     }
 
     %% ── View Layer ───────────────────────────────────────────────────────────
     class Views {
         <<View>>
-        +index(request) TemplateResponse
-        +create_song(request) TemplateResponse
-        +generate_song(request) HttpResponse
-        +song_status(request, song_id) TemplateResponse
-        +library(request) TemplateResponse
-        +song_detail(request, song_id) TemplateResponse
-        +delete_song(request, song_id) HttpResponse
-        +download_song(request, song_id) StreamingHttpResponse
-        +shared_song(request, token) TemplateResponse
-        +check_status_api(request, song_id) JsonResponse
+        +index()
+        +create_song()
+        +generate_song()
+        +song_status()
+        +library()
+        +song_detail()
+        +delete_song()
+        +download_song()
+        +shared_song()
+        +check_status_api()
     }
 
     %% ── Template Layer ───────────────────────────────────────────────────────
@@ -94,18 +86,15 @@ classDiagram
         +generate(request) GenerationResult*
         +get_status(task_id) GenerationResult*
     }
-
     class MockSongGeneratorStrategy {
         +generate(request) GenerationResult
         +get_status(task_id) GenerationResult
     }
-
     class SunoSongGeneratorStrategy {
         -api_key : str
         +generate(request) GenerationResult
         +get_status(task_id) GenerationResult
     }
-
     class GenerationRequest {
         <<dataclass>>
         +title : str
@@ -114,7 +103,6 @@ classDiagram
         +occasion : str
         +prompt_text : str
     }
-
     class GenerationResult {
         <<dataclass>>
         +task_id : str
