@@ -161,7 +161,7 @@ Now open `https://<your-ngrok-subdomain>.ngrok-free.dev/` in your browser and Go
 
 ---
 
-## Song Generation (Exercise 4 – Strategy Pattern)
+## Song Generation
 
 ### Run in Mock mode (offline, no API key needed)
 
@@ -223,22 +223,3 @@ Audio   : https://tempfile.aiquickdraw.com/r/<file-id>.mp3
 ```
 
 ---
-
-## CRUD Demonstration
-
-### 1. Create
-![Create](CRUD_screenshots/CreateSong.png)
-
-### 2. Read
-![Read](CRUD_screenshots/ListSong.png)
-
-### 3. Update
-
-![Update](CRUD_screenshots/UpdateSong.png)
-
-![Update](CRUD_screenshots/UpdatedHistory.png)
-
-### 4. Delete
-![Delete](CRUD_screenshots/DeleteSong.png)
-
-![Delete](CRUD_screenshots/DeletedSuccess.png)
